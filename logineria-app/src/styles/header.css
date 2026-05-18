@@ -1,0 +1,23 @@
+.page-header {
+    background-color: white;
+    font-size: 20pt;
+    text-transform: uppercase;
+    font-family: Helvetica;
+    font-weight: 600;
+    color: midnightblue;
+    align-items: center;
+}
+
+.page-header-logo {
+    height: 3.5em;
+    float: left;
+}
+
+.page-header-wrapper {
+    display: flex;
+}
+
+.page-header-separator {
+    clear: left;
+    margin-top: 10px;
+}
