@@ -1,11 +1,11 @@
 import { removeElement } from "../canvas-components/CanvasFunctions";
 
-const CanvasToolribbon = ({selection, layer}) => {
+const CanvasToolribbon = ({selection, layer, setSelection}) => {
 
     return (
         <section className="canvas-toolribbon-wrapper">
             <div >
-                <button onClick={() => removeElement(selection, layer)}>Delete</button>
+                <button onClick={() => removeElement(selection, layer, setSelection)}>Delete</button>
                 <button>Button</button>
                 <button>Button</button>
                 <button>Button</button>

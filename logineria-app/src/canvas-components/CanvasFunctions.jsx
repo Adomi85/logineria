@@ -1,69 +1,89 @@
 import { AndGate, OrGate, NotGate, NandGate, NorGate, XnorGate, XorGate } from "../canvas-components/LogicGates.jsx";
 
-export function createComponent(element, setSelection){
+export function createComponent(element, selection, setSelection){
         
     if(element.type === "AND"){
         return (
-            <AndGate key={element.id} props={element} onClick={(e) => selectElement(e, setSelection)} />
+            <AndGate key={element.id} props={element} onClick={(e) => selectElement(e, selection, setSelection)} />
         )
     }
 
     if(element.type === "OR"){
         return (
-            <OrGate key={element.id} props={element} onClick={(e) => selectElement(e, setSelection)} />
+            <OrGate key={element.id} props={element} onClick={(e) => selectElement(e, selection, setSelection)} />
         )
     }
 
     if(element.type == "NOT"){
         return (
-            <NotGate key={element.id} props={element} onClick={(e) => selectElement(e, setSelection)} />
+            <NotGate key={element.id} props={element} onClick={(e) => selectElement(e, selection, setSelection)} />
         )
     }
 
     if(element.type == "NAND"){
         return (
-            <NandGate key={element.id} props={element} onClick={(e) => selectElement(e, setSelection)} />
+            <NandGate key={element.id} props={element} onClick={(e) => selectElement(e, selection, setSelection)} />
         )
     }
 
     if(element.type == "NOR"){
         return (
-            <NorGate key={element.id} props={element} onClick={(e) => selectElement(e, setSelection)} />
+            <NorGate key={element.id} props={element} onClick={(e) => selectElement(e, selection, setSelection)} />
         )
     }
 
     if(element.type == "XOR"){
         return (
-            <XorGate key={element.id} props={element} onClick={(e) => selectElement(e, setSelection)} />
+            <XorGate key={element.id} props={element} onClick={(e) => selectElement(e, selection, setSelection)} />
         )
     }
 
     if(element.type == "XNOR"){
         return (
-            <XnorGate key={element.id} props={element} onClick={(e) => selectElement(e, setSelection)} />
+            <XnorGate key={element.id} props={element} onClick={(e) => selectElement(e, selection, setSelection)} />
         )
     }
 }
 
-export function selectElement(e, setSelection){
+export function selectElement(e, selection, setSelection){
     
-    const newSelection = e.target.parent.getAttr("props");
-    setSelection(newSelection);
+    const newValue = e.target.parent.getAttr("props");
+    const value = selection.find(e => e === newValue);
     
-    e.target.stroke("green"); // Komponentin korostus, jotta jollain tavalla varmistuu että komponentti on valittuna. Toiminnon toteutus vielä kesken.
-    e.target.strokeWidth(1);
+    if(value !== undefined){
+        const newSelection = selection.filter((e) => e !== newValue);
+        
+        setSelection(newSelection);
+        e.target.strokeWidth(0);
+    }
+    else {
+        
+        setSelection([...selection, newValue]);
+        e.target.stroke("green");
+        e.target.strokeWidth(1);
+    }
+
 }
 
-export function removeElement(selection, layer){
+export function removeElement(selection, layer, setSelection){
     
-    const group = layer.current.getChildren();
-    const node = group.find((e) => {
-        const attr = e.getAttr("props");
+    if(selection.lenght !== 0){
+        
+        const group = layer.current.getChildren();
+        const nodes = [];
+        
+        group.forEach((node) => {
+            const value = node.getAttr("props");
+            const selectionVal = selection.find((val) => val.id === value.id);
 
-        if(attr.id === selection.id){
-            return e
-        }
-    });
-    
-    node.remove();
+            if(value === selectionVal){
+                const newSelection = selection.filter((i) => i !== selectionVal);
+                nodes.push(node);
+                
+                setSelection(newSelection);
+            }
+        });
+
+        nodes.forEach((node) => node.remove());
+    }
 }

@@ -53,18 +53,18 @@ const CircuitCanvas = () => {
         setElements([...elements, newElement]);
     }
     
-    const [selection, setSelection] = useState(null);
+    const [selection, setSelection] = useState([]);
     const layerRef = useRef(null);
 
     return (
         <>
-            <CanvasToolribbon selection={selection} layer={layerRef} />
+            <CanvasToolribbon selection={selection} layer={layerRef} setSelection={setSelection} />
             <section className="canvas-wrapper">
                 <CanvasToolbar addElement={addElement} />
                 <div ref={containerRef} className="canvas-stage-container">
                     <Stage className="canvas-stage" width={stageSize.width} height={stageSize.height} scaleX={stageSize.scale} scaleY={stageSize.scale}>
                         <Layer ref={layerRef}>
-                            {elements.map((element) => createComponent(element,setSelection
+                            {elements.map((element) => createComponent(element, selection, setSelection
                             ))}
                         </Layer>
                     </Stage>
