@@ -1,12 +1,11 @@
-import { removeElement } from "../canvas-components/CanvasFunctions";
+import { removeObj } from "../logic/canvasFunctions.js";
 
-const CanvasToolribbon = ({selection, layer, setSelection}) => {
+const CanvasToolribbon = ({state}) => {
 
     return (
         <section className="canvas-toolribbon-wrapper">
             <div >
-                <button onClick={() => removeElement(selection, layer, setSelection)}>Delete</button>
-                <button>Button</button>
+                <button onClick={() => removeObj(state)}>Delete</button>
                 <button>Button</button>
                 <button>Button</button>
             </div>

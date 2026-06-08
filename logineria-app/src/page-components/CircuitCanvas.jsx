@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Stage, Layer } from "react-konva";
 import "../styles/canvas.css";
 
-import { createComponent } from "../canvas-components/CanvasFunctions.jsx";
+import { LogicComponent, WireComponent } from "../canvas-components/CreateComponents.jsx";
+import { addNode, addWire } from "../logic/canvasFunctions.js";
 
 import CanvasToolbar from "../canvas-components/CanvasToolbar.jsx";
 import CanvasToolribbon from "../canvas-components/CanvasToolribbon.jsx";
@@ -41,31 +42,31 @@ const CircuitCanvas = () => {
         };
     }, []);
 
-    const [elements, setElements] = useState([]);
-
-    function addElement(e){
-
-        const newElement = {
-            type: e.target.id,
-            id: crypto.randomUUID()
-        }
-
-        setElements([...elements, newElement]);
-    }
-    
+    const [mode, setMode] = useState('idle');
+    const [nodes, setNodes] = useState([]); 
     const [selection, setSelection] = useState([]);
-    const layerRef = useRef(null);
-
+    const [wires, setWires] = useState([]);
+    const [wireStart, setWireStart] = useState(null);
+    
     return (
         <>
-            <CanvasToolribbon selection={selection} layer={layerRef} setSelection={setSelection} />
+            <CanvasToolribbon state={{ selection, setSelection, nodes, setNodes, wires, setWires }} />
             <section className="canvas-wrapper">
-                <CanvasToolbar addElement={addElement} />
+                <CanvasToolbar mode={mode} setMode={setMode}/>
                 <div ref={containerRef} className="canvas-stage-container">
-                    <Stage className="canvas-stage" width={stageSize.width} height={stageSize.height} scaleX={stageSize.scale} scaleY={stageSize.scale}>
-                        <Layer ref={layerRef}>
-                            {elements.map((element) => createComponent(element, selection, setSelection
-                            ))}
+                    <Stage className="canvas-stage" width={stageSize.width} height={stageSize.height} scaleX={stageSize.scale} scaleY={stageSize.scale} 
+                    onClick={(e) => {
+                            if(mode !== 'WIRE'){
+                                addNode(e, {mode, setMode, nodes, setNodes, selection, setSelection, wires, setWires })
+                            }
+                            
+                            if(mode === 'WIRE'){
+                                addWire(e, {mode, setMode, wires, setWires, wireStart, setWireStart, selection, setSelection})
+                            }
+                        }}>
+                        <Layer >
+                            {nodes.map((node) => LogicComponent(node, { mode, setMode, nodes, setNodes, selection, setSelection, wires, setWires }))}
+                            {wires.map((wire) => <WireComponent key={wire.wireId} wire={wire} state={{ mode, setMode, wires, setWires, wireStart, setWireStart, selection, setSelection }} />)}
                         </Layer>
                     </Stage>
                 </div>

@@ -23,5 +23,25 @@ export const NODE_TYPES = {
         type: 'NOT',
         inputs: ['in'],
         outputs: ['out']
+    },
+    NAND: {
+        type: 'NAND',
+        inputs: ['in1', 'in2'],
+        outputs: ['out']
+    },
+    NOR: {
+        type: 'NOR',
+        inputs: ['in1', 'in2'],
+        outputs: ['out']
+    },
+    XOR: {
+        type: 'XOR',
+        inputs: ['in1', 'in2'],
+        outputs: ['out']
+    },
+    XNOR: {
+        type: 'XNOR',
+        inputs: ['in1', 'in2'],
+        outputs: ['out']
     }
 };
