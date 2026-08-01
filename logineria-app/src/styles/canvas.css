@@ -35,7 +35,7 @@
 
 #AND {
     background-image: url(../assets/AND.png);
-    background-size: 50px 20px;
+    background-size: 35px 20px;
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;
@@ -43,7 +43,7 @@
 
 #OR {
     background-image: url(../assets/OR.png);
-    background-size: 50px 20px;
+    background-size: 35px 20px;
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;
@@ -51,7 +51,7 @@
 
 #NOT {
     background-image: url(../assets/NOT.png);
-    background-size: 50px 20px;
+    background-size: 35px 20px;
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;
@@ -59,7 +59,7 @@
 
 #NAND {
     background-image: url(../assets/NAND.png);
-    background-size: 50px 20px;
+    background-size: 35px 20px;
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;
@@ -67,7 +67,7 @@
 
 #NOR {
     background-image: url(../assets/NOR.png);
-    background-size: 50px 20px;
+    background-size: 35px 20px;
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;
@@ -75,7 +75,7 @@
 
 #XOR {
     background-image: url(../assets/XOR.png);
-    background-size: 50px 20px;
+    background-size: 35px 20px;
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;
@@ -83,7 +83,7 @@
 
 #XNOR {
     background-image: url(../assets/XNOR.png);
-    background-size: 50px 20px;
+    background-size: 35px 20px;
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;

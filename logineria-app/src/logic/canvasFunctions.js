@@ -1,33 +1,44 @@
-import { createNode } from "../logic/nodeRepository.js";
+import { createNode, updateNode } from "../logic/nodeRepository.js";
 
 export function selectObj (e, state){
 
-    const obj = e.target.parent.attrs;
-    
-    if(state.mode === 'idle'){
-        state.setSelection([...state.selection, obj]);
-        e.target.stroke("blue")
-        e.target.strokeWidth(2);
-    }
+    const obj = e.target.getParent().attrs;
 
-    if(state.mode === 'idle' && state.selection.includes(obj) && e.target.attrs.type !== "WIRE"){
-        const filteredSelection = state.selection.filter(e => e !== obj);
-        state.setSelection(filteredSelection);
-        e.target.strokeWidth(0)
+    if(state.mode === "idle"){
+        
+        if(!state.selection.includes(obj) && obj.type === "WIRE"){
+            state.setSelection([...state.selection, obj]);
+            const visualWire = e.target.getParent().getChildren().find((child) => child.attrs.name === "visual-wire");
+            visualWire.stroke("blue");
+        }
+        else if(state.selection.includes(obj) && obj.type === "WIRE"){
+            state.setSelection(state.selection.filter((selected) => selected.id !== obj.id));
+            const visualWire = e.target.getParent().getChildren().find((child) => child.attrs.name === "visual-wire");
+            visualWire.stroke("black");
+        }
+        else if(state.selection.includes(obj) && obj.type === "INPUT" || state.selection.includes(obj) && obj.type === "OUTPUT"){
+            state.setSelection(state.selection.filter((selected) => selected.id !== obj.id));
+            const visualRect = e.target.getParent().getChildren().find((child) => child.attrs.name === "visual-rect");
+            visualRect.stroke("black");
+        }
+        else if(!state.selection.includes(obj) && obj.type === "INPUT" || !state.selection.includes(obj) && obj.type === "OUTPUT"){
+            state.setSelection([...state.selection, obj]);
+            const visualRect = e.target.getParent().getChildren().find((child) => child.attrs.name === "visual-rect");
+            visualRect.stroke("blue");
+        }
+        else if (state.selection.includes(obj)){
+            state.setSelection(state.selection.filter((selected) => selected.id !== obj.id));
+        }
+        else if(!state.selection.includes(obj)){
+            state.setSelection([...state.selection, obj]);
+        }
     }
-
-    if(state.mode === 'idle' && state.selection.includes(obj) && e.target.attrs.type === "WIRE"){
-        const filteredSelection = state.selection.filter(e => e !== obj);
-        state.setSelection(filteredSelection);
-        e.target.stroke("black");
-    }
-
 }
 
 export function addNode(e, state){
     if(state.mode !== 'idle' && state.mode !== 'WIRE'){
         const position = e.target.getPointerPosition();
-        const newPosition = { x: position.x - 50, y: position.y - 25 };
+        const newPosition = { x: position.x - 30, y: position.y - 20 };
         const newNode = createNode(state.mode, newPosition);
 
         state.setNodes([...state.nodes, newNode]);
@@ -37,49 +48,56 @@ export function addNode(e, state){
 
 export function updateNodePosition(e, state){
     
-    const updatedNode = {
-        type: e.target.attrs.type,
-        id: e.target.attrs.id,
-        node: e.target.attrs.node,
-        position: { x: e.target.attrs.x, y: e.target.attrs.y }
-    }
+    const data = e.target.attrs;
+    const updatedNode = updateNode(data);
     
     const nodeList = state.nodes.filter((i) => i.id !== e.target.attrs.id);
     state.setNodes([...nodeList, updatedNode]);
 
-    updateWirePosition(e, state);
+    if(state.wires.length > 0){
+        updateWirePosition(e, state);
+    }
 
 }
 
 export function updateWirePosition(e, state){
-    
-    if(state.wires.find((port) => port.startNodeId === e.target.attrs.id)){
-        const position = e.target.getChildren().find((child) => child.attrs.id === state.wires.find((port) => port.startNodeId === e.target.attrs.id).startPort).getAbsolutePosition();
-        const updatedWire = {
-            ...state.wires.find((port) => port.startNodeId === e.target.attrs.id),
-            start: position
+
+    const updatedWires = [];
+
+    state.wires.forEach((wire) => {
+        if(wire.startNodeId === e.target.attrs.id){
+            
+            const startPosition= e.target.getChildren().find((child) => child.attrs.id === wire.startPort).getAbsolutePosition();
+            const updatedWire = {
+                ...wire,
+                start: startPosition
+            }
+
+            updatedWires.push(updatedWire);
         }
 
-        state.setWires([...state.wires.filter((wire) => wire.wireId !== updatedWire.wireId), updatedWire]);
-    }
+        if(wire.endNodeId === e.target.attrs.id){
+            
+            const endPosition= e.target.getChildren().find((child) => child.attrs.id === wire.endPort).getAbsolutePosition();
+            const updatedWire = {
+                ...wire,
+                end: endPosition
+            }
 
-    if(state.wires.find((port) => port.endNodeId === e.target.attrs.id)){
-        const position = e.target.getChildren().find((child) => child.attrs.id === state.wires.find((port) => port.endNodeId === e.target.attrs.id).endPort).getAbsolutePosition();
-        const updatedWire = {
-            ...state.wires.find((port) => port.endNodeId === e.target.attrs.id),
-            end: position
+            updatedWires.push(updatedWire);
         }
-        
-        state.setWires([...state.wires.filter((wire) => wire.wireId !== updatedWire.wireId), updatedWire]);
-    }   
+   });
+
+   state.setWires([...state.wires.filter((wire) => !updatedWires.find((updated) => updated.wireId === wire.wireId)), ...updatedWires]);
+
 }
 
 export function addWire(e, state){
     
-    if(state.mode === 'WIRE' && state.wireStart === null){
+    if(state.wireStart === null && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
         const objID = e.target.parent.getAttr("id");
         const positionStart = e.target.getAbsolutePosition();
-        
+                
         const startWirePosition = {
             nodeId: objID,
             start: positionStart,
@@ -88,8 +106,7 @@ export function addWire(e, state){
 
         state.setWireStart(startWirePosition);
     }
-
-    if(state.mode === 'WIRE' && state.wireStart !== null){
+    else if(state.wireStart !== null && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
         const objID = e.target.parent.getAttr("id");
         const positionEnd = e.target.getAbsolutePosition();
 
@@ -100,38 +117,59 @@ export function addWire(e, state){
             startPort: state.wireStart.port,
             endNodeId: objID,
             end: positionEnd,
-            endPort: e.target.getAttr("id")
+            endPort: e.target.getAttr("id"),
+            value: 0
         }
 
         state.setWires([...state.wires, newWire]);
         state.setWireStart(null);
         state.setMode('idle');
     }
+    else {
+        state.setMode('idle');
+    }
 }
 
-export function removeObj(state){
-    
-    if(state.selection.length > 0){
-        const newNodes = []
-        const newWires = [];
-        
-        state.nodes.forEach((node) => {
+export function removeObj(state){   
+    const newWire = state.wires.filter((wire) => !state.selection.some((selected) => selected.id === wire.startNodeId || selected.id === wire.endNodeId));
+    const newNodes = state.nodes.filter((node) => !state.selection.some((selected) => selected.id === node.id));
 
-            if(!state.selection.find((selected) => selected.id === node.id)){
-                newNodes.push(node);
-            }
-        })
-        
-        state.setNodes(newNodes);
+    state.setWires(newWire);
+    state.setNodes(newNodes);
 
-        state.wires.forEach((wire) => {
+    state.setSelection([]);
+}
 
-            if(state.selection.find((selected) => selected.wireId === wire.wireId)){
-                newWires.push(wire);
-            }
-        })
+export const handleCircleHover = (e, state) => {
+    if(state.mode === "WIRE"){
+                    
+        if(e.type === "mouseenter"){
+            e.target.fill("white");
+            e.target.stroke("blue");
+            e.target.strokeWidth(2);
+        }
+                    
+        if(e.type === "mouseleave"){
+            e.target.fill("transparent");
+            e.target.stroke("transparent");
+            e.target.strokeWidth(0);
+        }
+   }        
+}
 
-        state.setWires(newWires);
-        state.setSelection([]);
+export const changeImage = (e, set, state) => {
+    if(state.mode === "idle" && e.target.image() !== set.image){
+        e.target.image(set.image);
     }
+    else {
+        e.target.image(set.selectedImage);
+    }
+}
+
+export const handleCircleClick = (e, state) => {
+    if(state.mode === "WIRE"){
+        e.target.fill("transparent");
+        e.target.stroke("transparent");
+        e.target.strokeWidth(0);
+    }   
 }

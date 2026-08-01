@@ -65,7 +65,7 @@ const CircuitCanvas = () => {
                             }
                         }}>
                         <Layer >
-                            {nodes.map((node) => LogicComponent(node, { mode, setMode, nodes, setNodes, selection, setSelection, wires, setWires }))}
+                            {nodes.map((node) => <LogicComponent key={node.id} node={node} state={{ mode, setMode, nodes, setNodes, selection, setSelection, wires, setWires }} />)}
                             {wires.map((wire) => <WireComponent key={wire.wireId} wire={wire} state={{ mode, setMode, wires, setWires, wireStart, setWireStart, selection, setSelection }} />)}
                         </Layer>
                     </Stage>

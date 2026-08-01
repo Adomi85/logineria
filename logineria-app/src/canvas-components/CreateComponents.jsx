@@ -1,8 +1,20 @@
-import { AndGate, OrGate, NotGate, NandGate, NorGate, XnorGate, XorGate } from "./LogicGates.jsx";
-import { Line } from "react-konva";
+import { AndGate, OrGate, NotGate, NandGate, NorGate, XnorGate, XorGate, InputNode, OutputNode } from "./LogicGates.jsx";
+import { Line, Group } from "react-konva";
 import { selectObj } from "../logic/canvasFunctions.js";
 
-export function LogicComponent(node, state){
+export const LogicComponent = ({node, state}) =>{
+
+    if(node.type === "INPUT"){
+        return (
+            <InputNode key={node.id} node={node} state={state} />
+        )
+    }
+
+    if(node.type === "OUTPUT"){
+        return (
+            <OutputNode key={node.id} node={node} state={state} />
+        )
+    }
     
     if(node.type === "AND"){
 
@@ -53,7 +65,10 @@ export const WireComponent = ({wire, state}) => {
     
     return (
         <>
-            <Line type={"WIRE"} {...wire} points={[wire.start.x, wire.start.y, wire.end.x, wire.end.y]} stroke="black" strokeWidth={2} onClick={(e) => selectObj(e, state)} />
+            <Group type={"WIRE"} key={wire.id} {...wire} >
+                <Line points={[wire.start.x, wire.start.y, wire.end.x, wire.end.y]} name="selection-wire" lineCap="round" lineJoin="round" stroke="transparent" strokeWidth={20} onClick={(e) => selectObj(e, state)}/>
+                <Line points={[wire.start.x, wire.start.y, wire.end.x, wire.end.y]} name="visual-wire" lineCap="round" lineJoin="round" stroke="black" strokeWidth={2}/>
+            </Group>
         </>
     )
 }

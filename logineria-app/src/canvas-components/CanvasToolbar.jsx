@@ -4,14 +4,21 @@ const CanvasToolbar = ({mode, setMode}) => {
         if(mode === e.target.id){
             setMode('idle');
         }
-
-        setMode(e.target.id);
+        else{
+            setMode(e.target.id);
+        }
     }
 
     return (
         <div className="canvas-toolbar">
             <button className="canvas-toolbar-btn" id="WIRE" onClick={(e) => componentMode(e, mode, setMode)}>
                 WIRE
+            </button>
+            <button className="canvas-toolbar-btn" id="INPUT" onClick={(e) => componentMode(e, mode, setMode)}>
+                INPUT
+            </button>
+            <button className="canvas-toolbar-btn" id="OUTPUT" onClick={(e) => componentMode(e, mode, setMode)}>
+                OUTPUT
             </button>
             <button className="canvas-toolbar-btn" id="AND" onClick={(e) => componentMode(e, mode, setMode)}>
                 AND
