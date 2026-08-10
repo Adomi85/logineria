@@ -62,12 +62,13 @@ export const LogicComponent = ({node, state}) =>{
 }
 
 export const WireComponent = ({wire, state}) => {
+    const halfpointX = (wire.start.x + wire.end.x) / 2;
     
     return (
         <>
             <Group type={"WIRE"} key={wire.id} {...wire} >
-                <Line points={[wire.start.x, wire.start.y, wire.end.x, wire.end.y]} name="selection-wire" lineCap="round" lineJoin="round" stroke="transparent" strokeWidth={20} onClick={(e) => selectObj(e, state)}/>
-                <Line points={[wire.start.x, wire.start.y, wire.end.x, wire.end.y]} name="visual-wire" lineCap="round" lineJoin="round" stroke="black" strokeWidth={2}/>
+                <Line points={[wire.start.x, wire.start.y, halfpointX, wire.start.y, halfpointX, wire.end.y, wire.end.x, wire.end.y]} name="selection-wire" lineCap="round" lineJoin="round" stroke="transparent" strokeWidth={20} onClick={(e) => selectObj(e, state)}/>
+                <Line points={[wire.start.x, wire.start.y, halfpointX, wire.start.y, halfpointX, wire.end.y, wire.end.x, wire.end.y]} name="visual-wire" lineCap="round" lineJoin="round" stroke="black" strokeWidth={1}/>
             </Group>
         </>
     )

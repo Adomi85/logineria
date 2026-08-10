@@ -3,22 +3,36 @@ import { updateInputNodePower, updateOutputNodePower } from "./nodeRepository";
 
 export function updateInput(e, state, value){
 
-    const inputId = e.target.parent.attrs.id;
-    const wire = state.wires.find((w) => w.endNodeId === inputId || w.startNodeId === inputId);
-    const node = state.nodes.find((n) => n.id === inputId);
+    if(state.wires.length !== 0){
 
-    const updatedWire = {
-        ...wire,
-        value: value
+        const inputId = e.target.parent.attrs.id;
+        const wire = state.wires.find((w) => w.endNodeId === inputId || w.startNodeId === inputId);
+        const node = state.nodes.find((n) => n.id === inputId);
+
+        const updatedWire = {
+            ...wire,
+            value: value
+        }
+
+        const updatedNode = {
+            ...node,
+            node: { ...node.node, inputs: { in1: value } }
+        }
+
+        state.setWires([...state.wires.filter((w) => w.wireId !== wire.wireId), updatedWire]);
+        state.setNodes([...state.nodes.filter((n) => n.id !== node.id), updatedNode]);
     }
+    else {
+        const inputId = e.target.parent.attrs.id;
+        const node = state.nodes.find((n) => n.id === inputId);
 
-    const updatedNode = {
-        ...node,
-        node: { ...node.node, inputs: { in1: value } }
+        const updatedNode = {
+            ...node,
+            node: { ...node.node, inputs: { in1: value } }
+        }
+
+        state.setNodes([...state.nodes.filter((n) => n.id !== node.id), updatedNode]);
     }
-
-    state.setWires([...state.wires.filter((w) => w.wireId !== wire.wireId), updatedWire]);
-    state.setNodes([...state.nodes.filter((n) => n.id !== node.id), updatedNode]);
 }
 
 export function inputValueChanges(node, state){

@@ -2,7 +2,7 @@ import { Image, Group, Circle, Rect, Text } from "react-konva";
 import { useState, useRef, useEffect } from  "react";
 import Konva from "konva";
 
-import { updateNodePosition, selectObj, updateWirePosition, handleCircleClick, handleCircleHover, changeImage } from "../logic/canvasFunctions.js";
+import { updateNodePosition, selectObj, updateWirePosition, changeImage, changeWireMode } from "../logic/canvasFunctions.js";
 import { updateInput, inputValueChanges, outputValueChanges, updateInputFromWire, updateOutputToWire, updateOutputFromWire } from "../logic/simLogic.js";
 
 import useImage from "use-image";
@@ -22,12 +22,17 @@ import xnorImage from "../assets/XNOR.png";
 import xnorSelectedImage from "../assets/XNOR_selected.png";
 
 
-
 export const InputNode = ({node, state}) => {
     const [position] = useState(node.position);
     const [stateValue, setStateValue] = useState(node.node.inputs.in1);
     const rectRef = useRef(null);
     const circleRef = useRef(null);
+    const groupRef = useRef(null);
+    
+    useEffect(() => {
+        changeWireMode(state, groupRef);
+
+    }, [state]);
 
     const powerButton = (e) => {
         if (circleRef.current.position().y === 15) {
@@ -68,13 +73,13 @@ export const InputNode = ({node, state}) => {
 
         return (
             <>
-                <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
-                    <Rect width={50} height={50} fill="lightgray" stroke="black" stroke_width={2} onClick={(e) => selectObj(e, state)} ref={rectRef} name="visual-rect"/>
+                <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+                    <Rect width={50} height={50} fill="lightgray" stroke="black" strokeWidth={2} onClick={(e) => selectObj(e, state)} ref={rectRef} name="visual-rect"/>
                     <Text text="INPUT" fontSize={11} x={8} y={-15} />
                     <Text text={stateValue} fontSize={25} x={18} y={15} />
-                    <Rect width={10} height={30} fill="lightgray" stroke="gray" stroke_width={1} x={-20} y={10} cornerRadius={5} />
-                    <Circle radius={5} fill="red" stroke="black" stroke_width={1} x={-15} y={35} id={"power"} ref={circleRef} onClick={(e) => powerButton(e)} />
-                    <Circle radius={4} fill="white" stroke="black" stroke_width={1} x={52} y={25} id={"in1"}  />
+                    <Rect width={10} height={30} fill="lightgray" stroke="gray" strokeWidth={1} x={-20} y={10} cornerRadius={5} />
+                    <Circle radius={5} fill="red" stroke="black" strokeWidth={1} x={-15} y={35} id={"power"} ref={circleRef} onClick={(e) => powerButton(e)} />
+                    <Circle radius={4} fill="transparent" x={50} y={25} id={"in1"} name={"wire_port"} />
                 </Group>
             </>
         )
@@ -82,13 +87,13 @@ export const InputNode = ({node, state}) => {
     
         return (
             <>
-                <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
-                    <Rect width={50} height={50} fill="lightyellow" stroke="black" stroke_width={2} onClick={(e) => selectObj(e, state)} ref={rectRef} name="visual-rect"/>
+                <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+                    <Rect width={50} height={50} fill="lightyellow" stroke="black" strokeWidth={2} onClick={(e) => selectObj(e, state)} ref={rectRef} name="visual-rect"/>
                     <Text text="INPUT" fontSize={11} x={8} y={-15} />
                     <Text text={stateValue} fontSize={25} x={18} y={15} />
-                    <Rect width={10} height={30} fill="lightgray" stroke="gray" stroke_width={1} x={-20} y={10} cornerRadius={5} />
-                    <Circle radius={5} fill="green" stroke="black" stroke_width={1} x={-15} y={15} id={"power"} ref={circleRef} onClick={(e) => powerButton(e)} />
-                    <Circle radius={4} fill="white" stroke="black" stroke_width={1} x={52} y={25} id={"in1"}  />
+                    <Rect width={10} height={30} fill="lightgray" stroke="gray" strokeWidth={1} x={-20} y={10} cornerRadius={5} />
+                    <Circle radius={5} fill="green" stroke="black" strokeWidth={1} x={-15} y={15} id={"power"} ref={circleRef} onClick={(e) => powerButton(e)} />
+                    <Circle radius={4} fill="transparent" x={50} y={25} id={"in1"} name={"wire_port"} />
                 </Group>
             </> 
         )  
@@ -101,8 +106,10 @@ export const OutputNode = ({node, state}) => {
     const [position] = useState(node.position);
     const [stateValue, setStateValue] = useState(0);
     const [output, setOutput] = useState(0);
+    const groupRef = useRef(null);
 
     useEffect(() => {
+
         const updateOutputValue = () => {
             
             const newOutput = outputValueChanges(node, state);
@@ -115,16 +122,17 @@ export const OutputNode = ({node, state}) => {
         }
 
         updateOutputValue();
+        changeWireMode(state, groupRef);
 
     }, [node, state, output]);
    
     return (
         <>
-            <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
-                <Rect width={50} height={50} fill="lightgray" stroke="black" stroke_width={2} onClick={(e) => selectObj(e, state)} name="visual-rect"/>
+            <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+                <Rect width={50} height={50} fill="lightgray" stroke="black" strokeWidth={2} onClick={(e) => selectObj(e, state)} name="visual-rect"/>
                 <Text text="OUTPUT" fontSize={11} x={5} y={-15} />
                 <Text text={stateValue} fontSize={25} x={18} y={15} />
-                <Circle radius={4} fill="white" stroke="black" stroke_width={1} x={-2} y={25} id={"out"} />
+                <Circle radius={4} fill="transparent" x={-2} y={25} id={"out"} name={"wire_port"} />
             </Group>
         </>
     )
@@ -136,11 +144,12 @@ export const AndGate = ({node, state}) => {
     const [position] = useState(node.position);
     const [inputs, setInputs] = useState({ in1: 0, in2: 0 });
     const [output, setOutput] = useState(0);
+    const groupRef = useRef(null);
     
     useEffect(() => {
 
         const newInputs = inputValueChanges(node, state);
-        
+                
         const inputChange = () => {
             
             if(newInputs.in1 !== inputs.in1 || newInputs.in2 !== inputs.in2){
@@ -162,19 +171,20 @@ export const AndGate = ({node, state}) => {
 
         inputChange();
         outputChange();
+        changeWireMode(state, groupRef);
         
     }, [node, state, inputs, output])
 
     return (
         <>
-            <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)} >
+            <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)} >
                 <Image image={image} width={60} height={40} x={0} y={0} onClick={(e) => {
                     changeImage(e,{ image, selectedImage }, state);
                     selectObj(e, state);
                     }}/>
-                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
+                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} name={"wire_port"} />
+                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} name={"wire_port"} />
+                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} name={"wire_port"} />
             </Group>
         </>
     )
@@ -186,6 +196,7 @@ export const OrGate = ({node, state}) => {
     const [position] = useState(node.position);
     const [inputs, setInputs] = useState({ in1: 0, in2: 0 });
     const [output, setOutput] = useState(0);
+    const groupRef = useRef(null);
     
     useEffect(() => {
 
@@ -212,19 +223,20 @@ export const OrGate = ({node, state}) => {
 
         inputChange();
         outputChange();
+        changeWireMode(state, groupRef);
         
     }, [node, state, inputs, output])
 
     return (
         <>
-            <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+            <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
                 <Image image={image} width={60} height={40} x={0} y={0} onClick={(e) => {
                     changeImage(e,{ image, selectedImage }, state);
                     selectObj(e, state);
                     }}/>
-                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
+                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} name={"wire_port"} />
+                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} name={"wire_port"} />
+                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} name={"wire_port"} />
             </Group>
         </>
     )
@@ -236,7 +248,8 @@ export const NotGate = ({node, state}) => {
     const [selectedImage] = useImage(notSelectedImage);
     const [inputs, setInputs] = useState({ in1: 0 });
     const [output, setOutput] = useState(0);
-    
+    const groupRef = useRef(null);
+
     useEffect(() => {
 
         const newInputs = inputValueChanges(node, state);
@@ -262,18 +275,19 @@ export const NotGate = ({node, state}) => {
 
         inputChange();
         outputChange();
-        
+        changeWireMode(state, groupRef);
+
     }, [node, state, inputs, output])
 
     return (
         <>
-            <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+            <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
                 <Image image={image} width={60} height={40} x={0} y={0} onClick={(e) => {
                     changeImage(e,{ image, selectedImage }, state);
                     selectObj(e, state);
                     }}/>
-                <Circle radius={3} x={0} y={20} fill="transparent" id={"in1"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
+                <Circle radius={3} x={0} y={20} fill="transparent" id={"in1"} name={"wire_port"} />
+                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} name={"wire_port"} />
             </Group>
         </>
     )
@@ -285,7 +299,8 @@ export const NandGate = ({node, state}) => {
     const [position] = useState(node.position);
     const [inputs, setInputs] = useState({ in1: 0, in2: 0 });
     const [output, setOutput] = useState(0);
-    
+    const groupRef = useRef(null);
+
     useEffect(() => {
 
         const newInputs = inputValueChanges(node, state);
@@ -311,19 +326,20 @@ export const NandGate = ({node, state}) => {
 
         inputChange();
         outputChange();
-        
+        changeWireMode(state, groupRef);
+
     }, [node, state, inputs, output])
 
     return (
         <>
-            <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+            <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
                 <Image image={image} width={60} height={40} x={0} y={0} onClick={(e) => {
                     changeImage(e,{ image, selectedImage }, state);
                     selectObj(e, state);
                     }}/>
-                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
+                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} name={"wire_port"} />
+                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} name={"wire_port"} />
+                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} name={"wire_port"} />
             </Group>
         </>
     )
@@ -335,6 +351,7 @@ export const NorGate = ({node, state}) => {
     const [position] = useState(node.position);
     const [inputs, setInputs] = useState({ in1: 0, in2: 0 });
     const [output, setOutput] = useState(0);
+    const groupRef = useRef(null);
     
     useEffect(() => {
 
@@ -361,19 +378,20 @@ export const NorGate = ({node, state}) => {
 
         inputChange();
         outputChange();
-        
+        changeWireMode(state, groupRef);
+
     }, [node, state, inputs, output])
 
     return (
         <>
-            <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+            <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
                 <Image image={image} width={60} height={40} x={0} y={0} onClick={(e) => {
                     changeImage(e,{ image, selectedImage }, state);
                     selectObj(e, state);
                     }}/>
-                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
+                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} name={"wire_port"} />
+                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} name={"wire_port"} />
+                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} name={"wire_port"} />
             </Group>
         </>
     )
@@ -385,7 +403,8 @@ export const XorGate = ({node, state}) => {
     const [selectedImage] = useImage(xorSelectedImage);
     const [inputs, setInputs] = useState({ in1: 0, in2: 0 });
     const [output, setOutput] = useState(0);
-    
+    const groupRef = useRef(null);
+
     useEffect(() => {
 
         const newInputs = inputValueChanges(node, state);
@@ -411,19 +430,20 @@ export const XorGate = ({node, state}) => {
 
         inputChange();
         outputChange();
-        
+        changeWireMode(state, groupRef);
+
     }, [node, state, inputs, output])
 
     return (
         <>
-            <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+            <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
                 <Image image={image} width={60} height={40} x={0} y={0} onClick={(e) => {
                     changeImage(e,{ image, selectedImage }, state);
                     selectObj(e, state);
                     }}/>
-                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
+                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} name={"wire_port"} />
+                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} name={"wire_port"} />
+                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} name={"wire_port"} />
             </Group>
         </>
     )
@@ -435,7 +455,8 @@ export const XnorGate = ({node, state}) => {
     const [position] = useState(node.position);
     const [inputs, setInputs] = useState({ in1: 0, in2: 0 });
     const [output, setOutput] = useState(0);
-    
+    const groupRef = useRef(null);
+
     useEffect(() => {
 
         const newInputs = inputValueChanges(node, state);
@@ -461,19 +482,20 @@ export const XnorGate = ({node, state}) => {
 
         inputChange();
         outputChange();
-        
+        changeWireMode(state, groupRef);
+
     }, [node, state, inputs, output])
 
     return (
         <>
-            <Group type={node.type} {...node} x={position.x} y={position.y} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
+            <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)}>
                 <Image image={image} width={60} height={40} x={0} y={0} onClick={(e) => {
                     changeImage(e,{ image, selectedImage }, state);
                     selectObj(e, state);
                     }}/>
-                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
-                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} onClick={(e) => handleCircleClick(e, state)} onMouseEnter={(e) => handleCircleHover(e, state)} onMouseLeave={(e) => handleCircleHover(e, state)}/>
+                <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} name={"wire_port"} />
+                <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} name={"wire_port"} />
+                <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} name={"wire_port"} />
             </Group>
         </>
     )

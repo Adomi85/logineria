@@ -93,30 +93,29 @@ export function updateWirePosition(e, state){
 }
 
 export function addWire(e, state){
+    const position = e.target.getAbsolutePosition();
     
     if(state.wireStart === null && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
         const objID = e.target.parent.getAttr("id");
-        const positionStart = e.target.getAbsolutePosition();
                 
         const startWirePosition = {
             nodeId: objID,
-            start: positionStart,
+            start: position,
             port: e.target.getAttr("id")
         }
 
         state.setWireStart(startWirePosition);
     }
-    else if(state.wireStart !== null && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
+    else if(state.wireStart !== null && state.wireStart.position !== position && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
         const objID = e.target.parent.getAttr("id");
-        const positionEnd = e.target.getAbsolutePosition();
-
+        
         const newWire = {
             wireId: crypto.randomUUID(),
             startNodeId: state.wireStart.nodeId,
             start: state.wireStart.start,
             startPort: state.wireStart.port,
             endNodeId: objID,
-            end: positionEnd,
+            end: position,
             endPort: e.target.getAttr("id"),
             value: 0
         }
@@ -125,36 +124,19 @@ export function addWire(e, state){
         state.setWireStart(null);
         state.setMode('idle');
     }
-    else {
-        state.setMode('idle');
-    }
 }
 
-export function removeObj(state){   
-    const newWire = state.wires.filter((wire) => !state.selection.some((selected) => selected.id === wire.startNodeId || selected.id === wire.endNodeId));
-    const newNodes = state.nodes.filter((node) => !state.selection.some((selected) => selected.id === node.id));
+export function deleteSelected(state){
+    
+    const newNodes = state.nodes.filter((node) => !state.selection.find((selected) => selected.id === node.id));
+    const newWire = state.wires.filter((wire) => state.selection.find((selected) => selected.id === wire.wireId));
+    console.log(newWire);
 
     state.setWires(newWire);
     state.setNodes(newNodes);
 
     state.setSelection([]);
-}
-
-export const handleCircleHover = (e, state) => {
-    if(state.mode === "WIRE"){
-                    
-        if(e.type === "mouseenter"){
-            e.target.fill("white");
-            e.target.stroke("blue");
-            e.target.strokeWidth(2);
-        }
-                    
-        if(e.type === "mouseleave"){
-            e.target.fill("transparent");
-            e.target.stroke("transparent");
-            e.target.strokeWidth(0);
-        }
-   }        
+    
 }
 
 export const changeImage = (e, set, state) => {
@@ -166,10 +148,26 @@ export const changeImage = (e, set, state) => {
     }
 }
 
-export const handleCircleClick = (e, state) => {
+export const changeWireMode = (state, ref) => {
     if(state.mode === "WIRE"){
-        e.target.fill("transparent");
-        e.target.stroke("transparent");
-        e.target.strokeWidth(0);
-    }   
+        ref.current.getChildren().forEach((child) => {
+            
+            if(child.attrs.name === "wire_port"){
+                child.fill("white");
+                child.stroke("black");
+                child.strokeWidth(1);
+            }
+        });
+    }
+
+    if(state.mode !== "WIRE"){
+        ref.current.getChildren().forEach((child) => {
+            
+            if(child.attrs.name === "wire_port"){
+                child.fill("transparent");
+                child.stroke("transparent");
+                child.strokeWidth(0);
+            }
+        });
+    }
 }

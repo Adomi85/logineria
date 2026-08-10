@@ -1,0 +1,116 @@
+@font-face {
+    font-family: "Sansdiesgo";
+    src: url("../fonts/Sansdiesgo.ttf") format("ttf");
+    font-weight: normal;
+    font-style: normal;
+}
+
+.menu-container {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background-color: white;
+    border: 1px solid gray;
+    border-radius: 5px;
+    width: 14vw;
+    height: 95vh;
+    float: left;
+    z-index: 2;
+    filter: drop-shadow(0px 0px 2px black);
+}
+
+.menu-title {
+    font-size: 20px;
+    font-weight: 600;
+    font-family: "Sansdiesgo", sans-serif;
+    justify-content: center;
+    text-align: center;
+    padding: 5px;
+    margin-top: 10px;
+}
+
+.menu-divider {
+    border: double 1px gray;
+    height: 1px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.menu-buttons {
+    display: flex;
+    margin: 10px;
+    justify-content: center;
+}
+
+.menu-button {
+    background-color: transparent;
+    border: none;
+    margin: 2px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: "Sansdiesgo", sans-serif;
+}
+
+.menu-button:hover {
+    color: blue;
+}
+
+.menu-button:disabled {
+    color: grey;
+    cursor: not-allowed;
+}
+
+.menu-button:hover:disabled {
+    color: grey;
+    cursor: not-allowed;
+}
+
+.menu-components-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: white;
+    border: 1px double gray;
+    filter: drop-shadow(0px 0px 2px gray);
+}
+
+.menu-components-title {
+    font-size: 14px;
+    font-weight: normal;
+    font-family: "Sansdiesgo", sans-serif;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.menu-components-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.menu-components-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.menu-components-icon {
+    width: 50px;
+    height: 35px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.menu-components-label {
+    font-size: 12px;
+    font-weight: 500;
+    font-family: "Sansdiesgo", sans-serif;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.menu-components-component {
+    display: grid;
+}
