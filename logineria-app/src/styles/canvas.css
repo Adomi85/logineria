@@ -1,90 +1,12 @@
-.canvas-wrapper {
-    display: flex;
+.canvas-container {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    margin-left: 0px;
 }
 
 .canvas-stage {
-    border: 2px solid black;
-    background-color: white;
-}
-
-.canvas-stage-container {
-    max-width: 80%;
-    max-height: 50%;
-}
-
-.canvas-toolribbon-wrapper{
-    margin-bottom: 10px;
-    margin-left: 120px;
-}
-
-.canvas-toolbar {
-    display: flex;
-    flex-direction: column;
-    border: 2px solid black;
-}
-
-.canvas-toolbar-btn {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    font-family: Arial;
-    font-size: 8pt;
-    width: 100px;
-    height: 50px;
-}
-
-#AND {
-    background-image: url(../assets/AND.png);
-    background-size: 50px 20px;
-    background-repeat: no-repeat;
-    background-position-x: center;
-    background-position-y: center;
-}
-
-#OR {
-    background-image: url(../assets/OR.png);
-    background-size: 50px 20px;
-    background-repeat: no-repeat;
-    background-position-x: center;
-    background-position-y: center;
-}
-
-#NOT {
-    background-image: url(../assets/NOT.png);
-    background-size: 50px 20px;
-    background-repeat: no-repeat;
-    background-position-x: center;
-    background-position-y: center;
-}
-
-#NAND {
-    background-image: url(../assets/NAND.png);
-    background-size: 50px 20px;
-    background-repeat: no-repeat;
-    background-position-x: center;
-    background-position-y: center;
-}
-
-#NOR {
-    background-image: url(../assets/NOR.png);
-    background-size: 50px 20px;
-    background-repeat: no-repeat;
-    background-position-x: center;
-    background-position-y: center;
-}
-
-#XOR {
-    background-image: url(../assets/XOR.png);
-    background-size: 50px 20px;
-    background-repeat: no-repeat;
-    background-position-x: center;
-    background-position-y: center;
-}
-
-#XNOR {
-    background-image: url(../assets/XNOR.png);
-    background-size: 50px 20px;
-    background-repeat: no-repeat;
-    background-position-x: center;
-    background-position-y: center;
+    border: 1px solid black;
+    background-color: lightgray;
+    padding: 2px;
 }
