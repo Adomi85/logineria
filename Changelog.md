@@ -1,11 +1,18 @@
 # Changelog
 
+
+## 13.8.2026
+
+Changes:
+
+- Added features New Canvas, Import and Export, which give user the option to save circuit canvas locally as json file and load saved canvas file.
+- Improved error handling
+
 ## 10.8.2026
 
 Changes:
 
 - Reworked Application UI/UX.
-
 
 ## 1.8.2026
 

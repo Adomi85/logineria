@@ -93,81 +93,136 @@ export function updateWirePosition(e, state){
 }
 
 export function addWire(e, state){
-    const position = e.target.getAbsolutePosition();
-    
-    if(state.wireStart === null && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
-        const objID = e.target.parent.getAttr("id");
-                
-        const startWirePosition = {
-            nodeId: objID,
-            start: position,
-            port: e.target.getAttr("id")
-        }
+    const type = e.target.getAttr("type");
 
-        state.setWireStart(startWirePosition);
-    }
-    else if(state.wireStart !== null && state.wireStart.position !== position && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
-        const objID = e.target.parent.getAttr("id");
+    if(type !== "Stage"){
+
+        const position = e.target.getAbsolutePosition();
+        const targetNodeId = e.target.parent.getAttr("id");
         
-        const newWire = {
-            wireId: crypto.randomUUID(),
-            startNodeId: state.wireStart.nodeId,
-            start: state.wireStart.start,
-            startPort: state.wireStart.port,
-            endNodeId: objID,
-            end: position,
-            endPort: e.target.getAttr("id"),
-            value: 0
+        if(state.wireStart === null && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
+            const objID = e.target.parent.getAttr("id");
+                    
+            const startWirePosition = {
+                nodeId: objID,
+                start: position,
+                port: e.target.getAttr("id")
+            }
+    
+            state.setWireStart(startWirePosition);
         }
-
-        state.setWires([...state.wires, newWire]);
-        state.setWireStart(null);
-        state.setMode('idle');
+        else if(state.wireStart !== null && state.wireStart.nodeId !== targetNodeId && state.wireStart.position !== position && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
+            const objID = e.target.parent.getAttr("id");
+            
+            const newWire = {
+                wireId: crypto.randomUUID(),
+                startNodeId: state.wireStart.nodeId,
+                start: state.wireStart.start,
+                startPort: state.wireStart.port,
+                endNodeId: objID,
+                end: position,
+                endPort: e.target.getAttr("id"),
+                value: 0
+            }
+    
+            state.setWires([...state.wires, newWire]);
+            state.setWireStart(null);
+            state.setMode('idle');
+        }
     }
 }
 
 export function deleteSelected(state){
-    
-    const newNodes = state.nodes.filter((node) => !state.selection.find((selected) => selected.id === node.id));
-    const newWire = state.wires.filter((wire) => state.selection.find((selected) => selected.id === wire.wireId));
-    console.log(newWire);
-
-    state.setWires(newWire);
-    state.setNodes(newNodes);
+    const filteredWires = state.wires.filter((wire) => !state.selection.find((selected) => selected.wireId === wire.wireId));
+    const filteredNodes = state.nodes.filter((node) => !state.selection.find((selected) => selected.id === node.id));
+        
+    state.setWires(filteredWires);
+    state.setNodes(filteredNodes);
 
     state.setSelection([]);
+}
+
+export function exportCanvas(state){
+    const wires = { wires: state.wires };
+    const nodes = { nodes: state.nodes };
+    const data = { ...wires, ...nodes };
+
+    const date = new Date();
+    const month = date.getMonth();
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const filename = `digital_circuit_${day}-${month}-${year}.json`;
+
+
+    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.style.display = "none";
+
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+}
+
+export function clearCanvas(state){
+
+    state.setNodes([]);
+    state.setWires([]);
+    state.setSelection([]);
+    state.setMode('idle');
+}
+
+export function importCanvas(state){
+
+    const reader = new FileReader();
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".json";
+
+    fileInput.click();
+
+    fileInput.addEventListener("change", () => {
+        const selectedFile = fileInput.files[0];
+
+        if(selectedFile){
+            reader.readAsText(selectedFile);
     
+            reader.addEventListener("loadend", () => {
+                const data = reader.result;
+                const jsonData = JSON.parse(data);
+
+                state.setNodes(jsonData.nodes);
+                state.setWires(jsonData.wires);
+            });
+        }
+    });
+
 }
 
-export const changeImage = (e, set, state) => {
-    if(state.mode === "idle" && e.target.image() !== set.image){
-        e.target.image(set.image);
-    }
-    else {
-        e.target.image(set.selectedImage);
-    }
-}
-
-export const changeWireMode = (state, ref) => {
-    if(state.mode === "WIRE"){
-        ref.current.getChildren().forEach((child) => {
+export function clearCanvasQuery(state){
             
-            if(child.attrs.name === "wire_port"){
-                child.fill("white");
-                child.stroke("black");
-                child.strokeWidth(1);
-            }
+    if(state.nodes.length !== 0){
+        const dialog = document.getElementById("custom-confirm-dialog");
+        const confirmBtnYes = document.getElementById("confirm-btn-yes");
+        const confirmBtnNo = document.getElementById("confirm-btn-no");
+    
+        dialog.showModal();
+    
+        confirmBtnYes.addEventListener("click", (e) => {
+            e.preventDefault();
+            dialog.close();
+            clearCanvas(state);
         });
-    }
-
-    if(state.mode !== "WIRE"){
-        ref.current.getChildren().forEach((child) => {
-            
-            if(child.attrs.name === "wire_port"){
-                child.fill("transparent");
-                child.stroke("transparent");
-                child.strokeWidth(0);
-            }
+    
+        confirmBtnNo.addEventListener("click", (e) => {
+            e.preventDefault();
+            dialog.close();
         });
+    } else {
+        clearCanvas(state);
     }
 }

@@ -3,8 +3,8 @@ import "../styles/canvas.css";
 
 import { LogicComponent, WireComponent } from "../canvas-components/CreateComponents.jsx";
 import { addNode, addWire } from "../logic/canvasFunctions.js";
-import { pointerVisibility } from "../logic/pointerFunctions.js";
-import PointerComponent from "./PointerComponent.jsx";
+import { pointerVisibility } from "../animations/animations.js";
+
 
 const CircuitCanvas = ({state}) => {
     const stageWidth = window.innerWidth * 2.5;
@@ -35,8 +35,7 @@ const CircuitCanvas = ({state}) => {
     return (
         <>
             <section className="canvas-container">
-                <PointerComponent />
-                <Stage className="canvas-stage" width={stageWidth} height={stageHeight} scale={{x: 1, y: 1}}
+                <Stage type="Stage" className="canvas-stage" width={stageWidth} height={stageHeight} scale={{x: 1, y: 1}}
                     onMouseUp={(e) => {
                             if(state.mode !== 'WIRE'){
                                 addNode(e, state);

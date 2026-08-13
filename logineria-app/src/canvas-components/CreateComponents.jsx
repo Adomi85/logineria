@@ -1,67 +1,122 @@
-import { AndGate, OrGate, NotGate, NandGate, NorGate, XnorGate, XorGate, InputNode, OutputNode } from "./LogicGates.jsx";
+import OutputComponent from "./OutputComponent.jsx";
+import InputComponent from "./InputComponent.jsx";
+import TwoInputGate from "./TwoInputGate.jsx";
+import SingleInputGate from "./SingleInputGate.jsx";
 import { Line, Group } from "react-konva";
 import { selectObj } from "../logic/canvasFunctions.js";
 
-export const LogicComponent = ({node, state}) =>{
+import andImage from "../assets/AND.png";
+import andSelectedImage from "../assets/AND_selected.png";
+import orImage from "../assets/OR.png";
+import orSelectedImage from "../assets/OR_selected.png";
+import notImage from "../assets/NOT.png";
+import notSelectedImage from "../assets/NOT_selected.png";
+import nandImage from "../assets/NAND.png";
+import nandSelectedImage from "../assets/NAND_selected.png";
+import norImage from "../assets/NOR.png";
+import norSelectedImage from "../assets/NOR_selected.png";
+import xorImage from "../assets/XOR.png";
+import xorSelectedImage from "../assets/XOR_selected.png";
+import xnorImage from "../assets/XNOR.png";
+import xnorSelectedImage from "../assets/XNOR_selected.png";
 
-    if(node.type === "INPUT"){
-        return (
-            <InputNode key={node.id} node={node} state={state} />
-        )
+export const LogicComponent = ({ node, state }) => {
+    if (node.type === "INPUT") {
+        return <InputComponent key={node.id} node={node} state={state} />;
     }
 
-    if(node.type === "OUTPUT"){
-        return (
-            <OutputNode key={node.id} node={node} state={state} />
-        )
-    }
-    
-    if(node.type === "AND"){
-
-        return (
-            <AndGate key={node.id} node={node} state={state} />          
-        )
-    }
-    
-    if(node.type === "OR"){
-        return (
-            <OrGate key={node.id} node={node} state={state} />
-        )
+    if (node.type === "OUTPUT") {
+        return <OutputComponent key={node.id} node={node} state={state} />;
     }
 
-    if(node.type == "NOT"){
+    if (node.type === "NOT") {
         return (
-            <NotGate key={node.id} node={node} state={state} />
-        )
+            <SingleInputGate
+                key={node.id}
+                node={node}
+                state={state}
+                componentImg={notImage}
+                selectedImg={notSelectedImage}
+            />
+        );
     }
 
-    if(node.type == "NAND"){
+    if (node.type === "AND") {
         return (
-            <NandGate key={node.id} node={node} state={state} />
-        )
+            <TwoInputGate
+                key={node.id}
+                node={node}
+                state={state}
+                componentImg={andImage}
+                selectedImg={andSelectedImage}
+            />
+        );
     }
 
-    if(node.type == "NOR"){
+    if (node.type === "OR") {
         return (
-            <NorGate key={node.id} node={node} state={state} />
-        )
+            <TwoInputGate
+                key={node.id}
+                node={node}
+                state={state}
+                componentImg={orImage}
+                selectedImg={orSelectedImage}
+            />
+        );
     }
 
-    if(node.type == "XOR"){
+    if (node.type === "NAND") {
         return (
-            <XorGate key={node.id} node={node} state={state} />
-        )
+            <TwoInputGate
+                key={node.id}
+                node={node}
+                state={state}
+                componentImg={nandImage}
+                selectedImg={nandSelectedImage}
+            />
+        );
     }
 
-    if(node.type == "XNOR"){
+    if (node.type === "NOR") {
         return (
-            <XnorGate key={node.id} node={node} state={state} />
-        )
+            <TwoInputGate
+                key={node.id}
+                node={node}
+                state={state}
+                componentImg={norImage}
+                selectedImg={norSelectedImage}
+            />
+        );
     }
 
-}
+    if (node.type === "XOR") {
+        return (
+            <TwoInputGate
+                key={node.id}
+                node={node}
+                state={state}
+                componentImg={xorImage}
+                selectedImg={xorSelectedImage}
+            />
+        );
+    }
 
-export const WireComponent = ({wire, state}) => {
+    if (node.type === "XNOR") {
+        return (
+            <TwoInputGate
+                key={node.id}
+                node={node}
+                state={state}
+                componentImg={xnorImage}
+                selectedImg={xnorSelectedImage}
+            />
+        );
+    }
+
+    return null;
+};
+
+export const WireComponent = ({ wire, state }) => {
     const halfpointX = (wire.start.x + wire.end.x) / 2;
     
     return (
