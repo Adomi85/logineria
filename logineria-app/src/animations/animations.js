@@ -50,3 +50,8 @@ export const changeWireMode = (state, ref) => {
         });
     }
 }
+
+export const hideQuickStartGuide = () => {
+    const quickStartGuide = document.getElementById("quick-start-guide");
+    quickStartGuide.style.display = quickStartGuide.style.display === "block" ? "none" : "block";
+}

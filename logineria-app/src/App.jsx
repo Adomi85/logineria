@@ -6,6 +6,7 @@ import "./styles/main.css";
 
 import { useState } from "react";
 import CustomConfirmDialog from "./animations/CustomConfirmDialog.jsx";
+import QuickStartGuide from "./page-components/QuickStartGuide.jsx";
 
 const App = () => {
       const [mode, setMode] = useState('idle');
@@ -18,6 +19,7 @@ const App = () => {
   return (
     <>
       <main className="app-container">
+        <QuickStartGuide />
         <CustomConfirmDialog message="Are you sure you want to continue without saving?" />
         <PointerComponent state={state} />
         <CircuitCanvas state={state} />

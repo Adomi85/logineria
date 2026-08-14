@@ -1,5 +1,9 @@
 # Changelog
 
+## 14.8.2026
+
+- Added Quick Start Guide to button to menu and collapsible Quick Start Guide sidebar, which is controlled by the menu button.
+
 
 ## 13.8.2026
 
