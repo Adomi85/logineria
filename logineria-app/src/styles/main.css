@@ -23,7 +23,7 @@ body {
     top: 10px;
     right: 10px;
     z-index: 1000;
-    width: 25vw;
+    width: 500px;
     height: 95vh;
     background-color: white;
     border: 1px solid gray;
@@ -113,83 +113,9 @@ body {
     cursor: pointer;
 }
 
-
-.pointer {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: black;
-    pointer-events: none;
-    z-index: 9999;
-    visibility: hidden;
-}
-
-.pointer-icon {
-    width: 50px;
-    height: 35px;
-    opacity: 0.5;
-}
-
-.pointer-and {
-    position: absolute;
-    top: -15px;
-    left: -20px;
-    visibility: hidden;
-}
-
-.pointer-or {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-not {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-nand {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-nor {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-xor {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-xnor {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-input {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-output {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
+.btn-runsim {
+    z-index: 1000;
+    position: fixed;
+    top: 20px;
+    left: 45vw;
 }

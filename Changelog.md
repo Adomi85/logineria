@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.9.2026
+
+- Changed simulation logic behind run simulation button. This change fixed issue with looping render behaviour from previous states..
+
 ## 14.8.2026
 
 - Added Quick Start Guide to button to menu and collapsible Quick Start Guide sidebar, which is controlled by the menu button.

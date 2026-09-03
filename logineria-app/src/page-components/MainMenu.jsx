@@ -8,10 +8,11 @@ const MainMenu = ({state}) => {
         
     return (
         <>
-            <aside  className="menu-container">
+            <section  className="menu-container">
                     <p className="menu-title">Logineria</p>
                     <div className="menu-buttons">
                         <button className="menu-button" onClick={hideQuickStartGuide}>Quick Start Guide</button>
+                        <button className="menu-button" onClick={() => {console.log(state.wires); console.log(state.nodes); console.log(state.wirePorts);}}>Debug</button>
                     </div>
                     <hr className="menu-divider"/>
                     <div className="menu-buttons">
@@ -21,7 +22,7 @@ const MainMenu = ({state}) => {
                     </div>
                     <hr className="menu-divider"/>
                     <ComponentMenu state={state}/>
-            </aside>
+            </section>
         </>
     )
 }

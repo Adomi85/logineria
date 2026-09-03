@@ -36,6 +36,7 @@ export function selectObj (e, state){
 }
 
 export function addNode(e, state){
+
     if(state.mode !== 'idle' && state.mode !== 'WIRE'){
         const position = e.target.getPointerPosition();
         const newPosition = { x: position.x - 30, y: position.y - 20 };
@@ -44,6 +45,7 @@ export function addNode(e, state){
         state.setNodes([...state.nodes, newNode]);
         state.setMode('idle');
     }
+
 }
 
 export function updateNodePosition(e, state){
@@ -65,69 +67,136 @@ export function updateWirePosition(e, state){
     const updatedWires = [];
 
     state.wires.forEach((wire) => {
-        if(wire.startNodeId === e.target.attrs.id){
-            
+        if(wire.startNodeId === e.target.getAttrs().id && wire.endNodeId !== e.target.getAttrs().id){
             const startPosition= e.target.getChildren().find((child) => child.attrs.id === wire.startPort).getAbsolutePosition();
+            let midpointX = startPosition.x + 20;
+
+            if(wire.startPortFace === "left"){
+                midpointX = startPosition.x - 20;
+            }
+
             const updatedWire = {
                 ...wire,
-                start: startPosition
-            }
+                start: startPosition,
+                midpoints: [midpointX, startPosition.y, wire.midpoints[2], wire.midpoints[3]]
+            };
 
             updatedWires.push(updatedWire);
         }
 
-        if(wire.endNodeId === e.target.attrs.id){
-            
+        if(wire.endNodeId === e.target.getAttrs().id && wire.startNodeId !== e.target.getAttrs().id){
             const endPosition= e.target.getChildren().find((child) => child.attrs.id === wire.endPort).getAbsolutePosition();
+            let midpointX = endPosition.x + 20;
+
+            if(wire.endPortFace === "left"){
+                midpointX = endPosition.x - 20;
+            }
+
             const updatedWire = {
                 ...wire,
-                end: endPosition
-            }
+                end: endPosition,
+                midpoints: [wire.midpoints[0], wire.midpoints[1], midpointX, endPosition.y]
+            };
 
             updatedWires.push(updatedWire);
         }
-   });
+
+        if(wire.startNodeId === e.target.getAttrs().id && wire.endNodeId === e.target.getAttrs().id){
+            const startPosition= e.target.getChildren().find((child) => child.attrs.id === wire.startPort).getAbsolutePosition();
+            const endPosition= e.target.getChildren().find((child) => child.attrs.id === wire.endPort).getAbsolutePosition();
+            let midpointYStart = startPosition.y + 50;
+            let midpointYEnd = endPosition.y + 50;
+
+            const updatedWire = {
+                ...wire,
+                start: startPosition,
+                end: endPosition,
+                midpoints: [startPosition.x, midpointYStart, endPosition.x, midpointYEnd]
+            };
+
+            updatedWires.push(updatedWire);
+        }
+    });
 
    state.setWires([...state.wires.filter((wire) => !updatedWires.find((updated) => updated.wireId === wire.wireId)), ...updatedWires]);
-
 }
 
 export function addWire(e, state){
-    const type = e.target.getAttr("type");
-
-    if(type !== "Stage"){
-
-        const position = e.target.getAbsolutePosition();
-        const targetNodeId = e.target.parent.getAttr("id");
+    const type = e.target.getAttrs().type;
         
-        if(state.wireStart === null && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
-            const objID = e.target.parent.getAttr("id");
-                    
-            const startWirePosition = {
-                nodeId: objID,
-                start: position,
-                port: e.target.getAttr("id")
+    if(type === "gate_port"){
+        
+        if(state.wireStart === null){
+
+            let midpointX = e.target.getAbsolutePosition().x + 20;
+
+            if(e.target.getAttrs().portface === "left"){
+                midpointX = e.target.getAbsolutePosition().x - 20;
             }
-    
-            state.setWireStart(startWirePosition);
-        }
-        else if(state.wireStart !== null && state.wireStart.nodeId !== targetNodeId && state.wireStart.position !== position && (e.target.attrs.id === "in1" || e.target.attrs.id === "in2" || e.target.attrs.id === "out")){
-            const objID = e.target.parent.getAttr("id");
-            
-            const newWire = {
+
+            const startWire = {
                 wireId: crypto.randomUUID(),
-                startNodeId: state.wireStart.nodeId,
-                start: state.wireStart.start,
-                startPort: state.wireStart.port,
-                endNodeId: objID,
-                end: position,
-                endPort: e.target.getAttr("id"),
-                value: 0
+                type: "WIRE",
+                start: e.target.getAbsolutePosition(),
+                startNodeId: e.target.parent.getAttrs().id,
+                startPort: e.target.getAttrs().id,
+                startPortFace: e.target.getAttrs().portface,
+                midpointX: midpointX
+            };
+
+            state.setWireStart(startWire);
+        } else if(state.wireStart !== null && state.wireStart.startNodeId !== e.target.parent.getAttrs().id){
+
+            let midpointX = e.target.getAbsolutePosition().x + 20;
+
+            if(e.target.getAttrs().portface === "left"){
+                midpointX = e.target.getAbsolutePosition().x - 20;
             }
-    
-            state.setWires([...state.wires, newWire]);
+
+            const wholeWire = {
+                wireId: state.wireStart.wireId,
+                type: "WIRE",
+                start: state.wireStart.start,
+                startNodeId: state.wireStart.startNodeId,
+                startPort: state.wireStart.startPort,
+                startPortFace: state.wireStart.startPortFace,
+                end: e.target.getAbsolutePosition(),
+                endNodeId: e.target.parent.getAttrs().id,
+                endPort: e.target.getAttrs().id,
+                endPortFace: e.target.getAttrs().portface,
+                midpoints: [state.wireStart.midpointX, state.wireStart.start.y, midpointX, e.target.getAbsolutePosition().y]
+            };
+
+            state.setWires([...state.wires, wholeWire]);
             state.setWireStart(null);
-            state.setMode('idle');
+        } else if(state.wireStart !== null && state.wireStart.startNodeId === e.target.parent.getAttrs().id){ 
+            
+            let midpointXStart = state.wireStart.start.x;
+            let midpointXEnd = e.target.getAbsolutePosition().x;
+            let midpointYStart = state.wireStart.start.y - 50;
+            let midpointYEnd = state.wireStart.start.y - 50;
+
+            if(state.wireStart.startPort === "in2" || e.target.getAttrs().id === "in2"){
+                midpointYStart = state.wireStart.start.y + 50;
+                midpointYEnd = state.wireStart.start.y + 50;
+            }
+
+            const wholeWire = {
+                wireId: state.wireStart.wireId,
+                type: "WIRE",
+                start: state.wireStart.start,
+                startNodeId: state.wireStart.startNodeId,
+                startPort: state.wireStart.startPort,
+                startPortFace: state.wireStart.startPortFace,
+                end: e.target.getAbsolutePosition(),
+                endNodeId: e.target.parent.getAttrs().id,
+                endPort: e.target.getAttrs().id,
+                endPortFace: e.target.getAttrs().portface,
+                midpoints: [midpointXStart, midpointYStart, midpointXEnd, midpointYEnd]
+            };
+
+            state.setWires([...state.wires, wholeWire]);
+            state.setWireStart(null);
         }
     }
 }
@@ -169,9 +238,9 @@ export function exportCanvas(state){
 }
 
 export function clearCanvas(state){
-
     state.setNodes([]);
     state.setWires([]);
+    state.setWireStart(null);
     state.setSelection([]);
     state.setMode('idle');
 }

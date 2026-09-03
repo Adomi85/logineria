@@ -1,12 +1,12 @@
 import CircuitCanvas from "./page-components/CircuitCanvas";
 import MainMenu from "./page-components/MainMenu";
-import PointerComponent from "./animations/PointerComponent.jsx";
 import "./animations/animations.js";
 import "./styles/main.css";
 
 import { useState } from "react";
 import CustomConfirmDialog from "./animations/CustomConfirmDialog.jsx";
 import QuickStartGuide from "./page-components/QuickStartGuide.jsx";
+import RunSimComponent from "./page-components/RunSimComponent.jsx";
 
 const App = () => {
       const [mode, setMode] = useState('idle');
@@ -21,9 +21,9 @@ const App = () => {
       <main className="app-container">
         <QuickStartGuide />
         <CustomConfirmDialog message="Are you sure you want to continue without saving?" />
-        <PointerComponent state={state} />
         <CircuitCanvas state={state} />
         <MainMenu state={state} />
+        <RunSimComponent state={state} />
       </main>
     </>
   )
