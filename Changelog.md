@@ -1,5 +1,15 @@
 # Changelog
 
+## 19.9.2026
+
+- Marjor changes to simulation logic, add wire, wire position, delete functions..
+- It is now possible to connect wires to wires. Multiple connection can be made this way, runSim logic will also support this and result any confliting input values properly.
+- UI has had slight updates on style.
+- Added a new features: 
+    - Users may now also download image of the circuit to their local machine via "Capture as image" -button.
+    - Users may reset the circuit input/output values via "Reset input/output" -button.
+- Updated application architecture: restructured file location, refactored code to reflect these changes.
+ 
 ## 3.9.2026
 
 - Changed simulation logic behind run simulation button. This change fixed issue with looping render behaviour from previous states..

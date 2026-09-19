@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Image, Group, Circle } from "react-konva";
 import useImage from "use-image";
 
-import { changeImage, changeWireMode } from "../animations/animations.js";
-import { updateNodePosition, selectObj, updateWirePosition } from "../logic/canvasFunctions.js";
+import { updateNodePosition, selectObj, updateWirePosition,  changeImage, changeWireMode } from "../logic/canvasFunctions.js";
 
 const TwoInputGate = ({node, state, componentImg, selectedImg }) => {
     const [image] = useImage(componentImg);
@@ -14,14 +13,19 @@ const TwoInputGate = ({node, state, componentImg, selectedImg }) => {
     useEffect(() => {
         changeWireMode(state, groupRef);
 
-    }, [state])
+    }, [state, node, image, selectedImage]);
 
     return (
         <>
             <Group type={node.type} {...node} x={position.x} y={position.y} ref={groupRef} draggable onDragMove={(e) => updateWirePosition(e, state)} onDragEnd={(e) => updateNodePosition(e, state)} >
                 <Image image={image} width={60} height={40} x={0} y={0} onClick={(e) => {
-                    changeImage(e,{ image, selectedImage }, state);
-                    selectObj(e, state);
+                        if(state.mode === "idle"){
+                            selectObj(e, state);
+
+                            const isSelected = state.selection.find((n) => n.id === node.id);
+
+                            changeImage(e, {image, selectedImage}, isSelected);
+                        }
                     }}/>
                 <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} type={"gate_port"} name={"port"} portface={"left"} />
                 <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} type={"gate_port"} name={"port"} portface={"left"} />

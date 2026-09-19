@@ -1,12 +1,12 @@
 import CircuitCanvas from "./page-components/CircuitCanvas";
 import MainMenu from "./page-components/MainMenu";
-import "./animations/animations.js";
 import "./styles/main.css";
+import "./styles/guide.css";
 
-import { useState } from "react";
-import CustomConfirmDialog from "./animations/CustomConfirmDialog.jsx";
+import { useState, useEffect } from "react";
+import CustomConfirmDialog from "./dialog/CustomConfirmDialog.jsx";
 import QuickStartGuide from "./page-components/QuickStartGuide.jsx";
-import RunSimComponent from "./page-components/RunSimComponent.jsx";
+import RunSimBtn from "./page-components/RunSimBtn.jsx";
 
 const App = () => {
       const [mode, setMode] = useState('idle');
@@ -16,14 +16,31 @@ const App = () => {
       const [wireStart, setWireStart] = useState(null);
       const state = { mode, setMode, nodes, setNodes, selection, setSelection, wires, setWires, wireStart, setWireStart };
 
+    useEffect(() => {
+      const changeCursor = (mode) => {
+        const appContainer = document.getElementById("app-container");
+
+        if(mode === "idle"){
+          appContainer.style.cursor = "default";
+        }
+
+        if(mode === "WIRE"){
+          appContainer.style.cursor = "crosshair";
+        }
+      }
+
+      changeCursor(mode);
+
+    }, [mode]);
+
   return (
     <>
-      <main className="app-container">
-        <QuickStartGuide />
+      <main className="app-container" id="app-container">
         <CustomConfirmDialog message="Are you sure you want to continue without saving?" />
         <CircuitCanvas state={state} />
         <MainMenu state={state} />
-        <RunSimComponent state={state} />
+        <RunSimBtn state={state} />
+        <QuickStartGuide />
       </main>
     </>
   )

@@ -1,182 +1,271 @@
-
 import { updateInputNodePower, updateOutputNodePower } from "./nodeRepository";
 
+// Updates the value to INPUT logic gate node
 export function updateInput(id, state, value){
 
-    if(state.wires.length !== 0){
-
-        const updatedWires = [];
-        let foundWire = false;
-
-        const wires = state.wires;
-
-        wires.forEach((wire) => {
-
-            if(wire.startNodeId === id && wire.startPort === "in1" || wire.endNodeId === id && wire.endPort === "in1") {
-                const updatedWire = {
-                    ...wire,
-                    value: value
-                }
-
-                foundWire = true;
-                updatedWires.push(updatedWire);
+    // Find the node with the given id
+    const node = state.nodes.find((n) => n.id === id);
+    
+    // If node exists, update its input value
+    if(node){
+        const updatedNode = {
+            ...node,
+            node: {
+                inputs: {in1: value}
             }
-        });
-        
-        const node = state.nodes.find((n) => n.id === id);
-
-        const updatedNode = {
-            ...node,
-            node: { ...node.node, inputs: { in1: value } }
         }
 
-        if(foundWire){
-            state.setWires([...state.wires.filter((w) => !updatedWires.find((updated) => updated.wireId === w.wireId)), ...updatedWires]);
-        }
-
-        state.setNodes([...state.nodes.filter((n) => n.id !== node.id), updatedNode]);
-    }
-    else {
-        const node = state.nodes.find((n) => n.id === id);
-
-        const updatedNode = {
-            ...node,
-            node: { ...node.node, inputs: { in1: value } }
-        }
-
-        state.setNodes([...state.nodes.filter((n) => n.id !== node.id), updatedNode]);
+        // Replace old node with updated node in state
+        state.setNodes([...state.nodes.filter((n) => n.id !== id), updatedNode]);
     }
 }
 
-export async function runSimulation(state){
+export async function runSim(state){
 
     let wires = state.wires;
     let nodes = state.nodes;
 
-    let inputs = [];
-    
-    wires.forEach((wire) => {
-        const startNode = nodes.find((node) => node.id === wire.startNodeId);
-        const endNode = nodes.find((node) => node.id === wire.endNodeId);
+    const inputs = nodes.filter((node) => node.type === "INPUT");
 
-        if(startNode.type === "INPUT"){
-            const input = {
-                inputId: startNode.id,
-                value: startNode.node.inputs.in1,
-                connectedPort: wire.endPort,
-                connectedNodeId: wire.endNodeId,
-                wireId: wire.wireId
-            };
+    if(inputs.length > 0){
+        inputs.forEach((input) => {
+            const connected = calculateConnections(wires, nodes, input);
 
-            const updatedWire = {
-                ...wire,
-                value: startNode.node.inputs.in1
-            };
+            let inputValue = input.node.inputs.in1;
 
-            wires = [...wires.filter((w) => w.wireId !== wire.wireId), updatedWire];
-
-            inputs.push(input);
-        }
-
-        if(endNode.type === "INPUT"){
-            const input = {
-                inputId: endNode.id,
-                value: endNode.node.inputs.in1,
-                connectedPort: wire.startPort,
-                connectedNodeId: wire.startNodeId,
-                wireId: wire.wireId
-            };
-
-            const updatedWire = {
-                ...wire,
-                value: endNode.node.inputs.in1
-            };
-
-            wires = [...wires.filter((w) => w.wireId !== wire.wireId), updatedWire];
-
-            inputs.push(input);
-        }
-    });
-
-    let edges = [];
-
-    inputs.forEach((input) => {
-        const connectedNode = nodes.find((node) => node.id === input.connectedNodeId);
-
-        if(connectedNode && connectedNode.type !== "OUTPUT"){
-            const inputValues = {
-                ...connectedNode.node.inputs,
-                [input.connectedPort]: input.value
+            if(connected.nodes.length !== 0){
+                connected.nodes.forEach((node) => {
+                    if(node.type === "INPUT"){
+                        if(node.node.inputs.in1 === 1){
+                            inputValue = 1;
+                        }
+                    }
+                });
             }
 
-            const updatedNode = updateInputNodePower(connectedNode, inputValues);
-            nodes = [...nodes.filter((n) => n.id !== connectedNode.id), updatedNode];
-            edges = [...edges.filter((e) => e.id !== connectedNode.id), updatedNode];
+            if(connected.wires.length !== 0){
+                connected.wires.forEach((wire) => {
+                    const index = wires.findIndex((w) => w.id === wire.id);
+                    
+                    const updatedWire = {
+                        ...wire,
+                        value: inputValue
+                    }
+
+                    wires.splice(index, 1, updatedWire);
+                });            
+            }
+
+            if(connected.nodes.length !== 0){
+                connected.nodes.forEach((node) => {
+                    if(node.type !== "INPUT" && node.type !== "OUTPUT" && node.type !== "NOT"){
+                        const wiresConnectedToIn1 = wires.filter((wire) => (wire.endId === node.id && wire.endPort === "in1") || (wire.startId === node.id && wire.startPort === "in1"));
+                        const wiresConnectedToIn2 = wires.filter((wire) => (wire.endId === node.id && wire.endPort === "in2") || (wire.startId === node.id && wire.startPort === "in2"));
+
+                        let in1Value = 0;
+                        let in2Value = 0;
+
+                        if(wiresConnectedToIn1.length > 0){
+                            wiresConnectedToIn1.forEach((wire) => {
+                                if(wire.value === 1){
+                                    in1Value = 1;
+                                }
+                            });
+                        }
+
+                        if(wiresConnectedToIn2.length > 0){
+                            wiresConnectedToIn2.forEach((wire) => {
+                                if(wire.value === 1){
+                                    in2Value = 1;
+                                }
+                            });
+                        }
+
+                        const updatedNode = updateInputNodePower(node, { in1: in1Value, in2: in2Value });
+
+                        const index = nodes.findIndex((n) => n.id === node.id);
+                        nodes.splice(index, 1, updatedNode);
+                    } else if(node.type === "NOT"){
+                        const wiresConnectedToIn1 = wires.filter((wire) => (wire.endId === node.id && wire.endPort === "in1") || (wire.startId === node.id && wire.startPort === "in1"));
+
+                        let in1Value = 0;
+
+                        if(wiresConnectedToIn1.length > 0){
+                            wiresConnectedToIn1.forEach((wire) => {
+                                if(wire.value === 1){
+                                    in1Value = 1;
+                                }
+                            });
+                        }
+
+                        const updatedNode = updateInputNodePower(node, { in1: in1Value });
+
+                        const index = nodes.findIndex((n) => n.id === node.id);
+                        nodes.splice(index, 1, updatedNode);
+                    }
+                });
+            }
+        });
+    }
+
+    if(nodes.length > 0){
+        const nodesQueue = nodes.filter((node) => node.type !== "INPUT" && node.type !== "OUTPUT");
+
+        while(nodesQueue.length > 0){
+            const node = nodesQueue.shift();
+            const connected = calculateConnections(wires, nodes, node);
+
+            if(connected.wires.length !== 0){
+                connected.wires.forEach((wire) => {
+                    const index = wires.findIndex((w) => w.id === wire.id);
+                    
+                    const updatedWire = {
+                        ...wire,
+                        value: node.node.outputs.out
+                    };
+
+                    wires.splice(index, 1, updatedWire);
+                });
+            }
+
+            if(connected.nodes.length !== 0){
+                connected.nodes.forEach((connectedNode) => {
+                    if(connectedNode.type !== "INPUT" && connectedNode.type !== "OUTPUT" && connectedNode.type !== "NOT"){
+                        const wiresConnectedToIn1 = wires.filter((wire) => (wire.endId === connectedNode.id && wire.endPort === "in1") || (wire.startId === connectedNode.id && wire.startPort === "in1"));
+                        const wiresConnectedToIn2 = wires.filter((wire) => (wire.endId === connectedNode.id && wire.endPort === "in2") || (wire.startId === connectedNode.id && wire.startPort === "in2"));
+
+                        let in1Value = 0;
+                        let in2Value = 0;
+
+                        if(wiresConnectedToIn1.length > 0){
+                            wiresConnectedToIn1.forEach((wire) => {
+                                if(wire.value === 1){
+                                    in1Value = 1;
+                                }
+                            });
+                        }
+
+                        if(wiresConnectedToIn2.length > 0){
+                            wiresConnectedToIn2.forEach((wire) => {
+                                if(wire.value === 1){
+                                    in2Value = 1;
+                                }
+                            });
+                        }
+
+                        const updatedNode = updateInputNodePower(connectedNode, { in1: in1Value, in2: in2Value });
+
+                        const index = nodes.findIndex((n) => n.id === connectedNode.id);
+                        nodes.splice(index, 1, updatedNode);
+
+                        if(updatedNode.node.outputs.out !== connectedNode.node.outputs.out){
+                            nodesQueue.push(updatedNode);
+                        }
+                    } else if(connectedNode.type === "NOT"){
+                        const wiresConnectedToIn1 = wires.filter((wire) => (wire.endId === connectedNode.id && wire.endPort === "in1") || (wire.startId === connectedNode.id && wire.startPort === "in1"));
+
+                        let in1Value = 0;
+
+                        if(wiresConnectedToIn1.length > 0){
+                            wiresConnectedToIn1.forEach((wire) => {
+                                if(wire.value === 1){
+                                    in1Value = 1;
+                                }
+                            });
+                        }
+                        const updatedNode = updateInputNodePower(connectedNode, { in1: in1Value });
+
+                        const index = nodes.findIndex((n) => n.id === connectedNode.id);
+                        nodes.splice(index, 1, updatedNode);
+
+                        if(updatedNode.node.outputs.out !== connectedNode.node.outputs.out){
+                            nodesQueue.push(updatedNode);
+                        }
+                    }
+                });
+            }
         }
+        
+    }
+
+    const outputs = nodes.filter((node) => node.type === "OUTPUT");
+
+    outputs.forEach((output) => {
+        const connectedWires = wires.filter((wire) => wire.endId === output.id || wire.startId === output.id);
+
+        const outputValue = connectedWires.some((wire) => wire.value === 1) ? 1 : 0;
+        const updatedOutputNode = updateOutputNodePower(output, outputValue);
+
+        nodes = [...nodes.filter((n) => n.id !== output.id), updatedOutputNode];
     });
 
-    let outputs = [];
 
-    for(let i = 0; i < edges.length; i++){
-        const edge = edges[i];
+    state.setNodes(nodes);
+    state.setWires(wires);
+}
 
-        wires.forEach((wire) => {
-            if(wire.startNodeId === edge.id && wire.startPort === "out" || wire.endNodeId === edge.id && wire.endPort === "out"){
-                const updatedWire = {
-                    ...wire,
-                    value: edge.node.outputs.out
-                };
+function calculateConnections(wires, nodes, node){
 
-                wires = [...wires.filter((w) => w.wireId !== wire.wireId), updatedWire];
+    const port = node.type === "INPUT" ? "in1" : "out";
+    const queue = wires.filter((wire) =>
+        (wire.startId === node.id && wire.startPort === port) ||
+        (wire.endId === node.id && wire.endPort === port)
+    );
+    const visitedWires = new Set();
+    const connections = [];
 
-                if(wire.startNodeId === edge.id){
-                    const connectedNode = nodes.find((node) => node.id === wire.endNodeId);
+    while(queue.length > 0){
+        const wire = queue.shift();
 
-                    if(connectedNode && connectedNode.type === "OUTPUT"){
-                        outputs = [...outputs.filter((o) => o.id !== connectedNode.id), connectedNode];
-                    } 
-                    else if(connectedNode && connectedNode.type !== "OUTPUT"){
-                        const inputValues = {
-                            ...connectedNode.node.inputs,
-                            [wire.endPort]: edge.node.outputs.out
+        if(visitedWires.has(wire.id)){
+            continue;
+        }
+
+        visitedWires.add(wire.id);
+        connections.push(wire);
+
+        wires.forEach((connectedWire) => {
+            if(connectedWire.startId === wire.id || connectedWire.endId === wire.id){
+                queue.push(connectedWire);
+            }
+
+            if(wire.startPortType === "wire_port" || wire.endPortType === "wire_port"){
+                const wiresStart = wires.filter((w) => w.id === wire.startId);
+                const wiresEnd = wires.filter((w) => w.id === wire.endId);
+
+                if(wiresStart.length > 0){
+
+                    wiresStart.forEach((w) => {
+                        if(!visitedWires.has(w.id)){
+
+                            queue.push(w);
                         }
 
-                        const updatedNode = updateInputNodePower(connectedNode, inputValues);
-                        nodes = [...nodes.filter((n) => n.id !== connectedNode.id), updatedNode];
-                        edges = [...edges.filter((e) => e.id !== connectedNode.id), updatedNode];
-                    }
+                    });
                 }
 
-                if(wire.endNodeId === edge.id){
-                    const connectedNode = nodes.find((node) => node.id === wire.startNodeId);
+                if(wiresEnd.length > 0){
+                    
+                    wiresEnd.forEach((w) => {    
+                        if(!visitedWires.has(w.id)){
 
-                    if(connectedNode && connectedNode.type === "OUTPUT"){
-                        outputs = [...outputs.filter((o) => o.id !== connectedNode.id), connectedNode];
-                    }
-                    else if(connectedNode && connectedNode.type !== "OUTPUT"){
-                        const inputValues = {
-                            ...connectedNode.node.inputs,
-                            [wire.startPort]: edge.node.outputs.out
+                            queue.push(w);
                         }
-                        const updatedNode = updateInputNodePower(connectedNode, inputValues);
-                        nodes = [...nodes.filter((n) => n.id !== connectedNode.id), updatedNode];
-                        edges = [...edges.filter((e) => e.id !== connectedNode.id), updatedNode];
-                    }
+                    });
                 }
             }
         });
     }
 
-    outputs.forEach((output) => {
-        wires.forEach((wire) => {
-            if(wire.startNodeId === output.id || wire.endNodeId === output.id){
-                const updatedNode = updateOutputNodePower(output, wire.value);
-                nodes = [...nodes.filter((n) => n.id !== output.id), updatedNode];
-            }
-        });
-    });
-    
-    state.setNodes(nodes);
-    state.setWires(wires);
+    const connectedNodes = nodes.filter((connectedNode) =>
+        connections.some((wire) =>
+            wire.startId === connectedNode.id || wire.endId === connectedNode.id
+        )
+    );
+
+    return { wires: connections, nodes: connectedNodes };
 }
+
+
+
 

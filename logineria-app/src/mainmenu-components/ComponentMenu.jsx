@@ -1,5 +1,6 @@
-import { deleteSelected } from "../logic/canvasFunctions.js";
+import { deleteSelected, resetInteractions } from "./menuFunctions.js";
 import { useState, useEffect } from "react";
+import ComponentButton from "./ComponentButton.jsx";
 
 import andImage from "../assets/and.png";
 import orImage from "../assets/or.png";
@@ -28,9 +29,19 @@ const ComponentMenu = ({state}) => {
             }
         }
 
+        const modeChangeWireBtn = () => {
+
+            if(state.mode === "idle"){
+                const wireBtn = document.getElementById("WIRE");
+                wireBtn.checked = false;
+            }
+
+        }
+
+        modeChangeWireBtn();
         deleteDisabled();
 
-    }, [state.selection, isDisabled]);
+    }, [state.selection, state.mode, isDisabled]);
 
     function switchMode(type, mode, setMode){
         if(mode === 'idle' || mode !== type){
@@ -43,6 +54,8 @@ const ComponentMenu = ({state}) => {
 
     function componentOnClick(e, state){
         const componentType = e.currentTarget.id;
+        const appContainer = document.getElementById("app-container");
+        appContainer.style.cursor = "crosshair";
 
         switchMode(componentType, state.mode, state.setMode);
     }
@@ -52,108 +65,31 @@ const ComponentMenu = ({state}) => {
             <div className="menu-components-menu">
                 <p className="menu-components-title">Logic Components</p>
                 <div className="menu-components-buttons">
-                    <button
-                    className="menu-button" 
-                    id="WIRE" 
-                    onClick={() => switchMode('WIRE', state.mode, state.setMode)}>Add Wire</button>
                     <button 
                     className="menu-button" 
-                    id="DELETE" 
+                    id="delete" 
                     disabled={isDisabled} 
                     onClick={() => deleteSelected(state)}>Delete selected</button>
+                    <div className="menu-components-wiremode">
+                        <label className="menu-components-label">Wire mode</label>
+                        <label className="switch">
+                            <input type="checkbox" id="WIRE" onChange={() => switchMode('WIRE', state.mode, state.setMode)}></input>
+                            <span className="slider"></span>
+                        </label>
+                    </div>
                 </div>
                 <div className="menu-components-container">
-                    <div className="menu-components-component">
-                        <img 
-                        src={inputImage} 
-                        alt="INPUT" 
-                        id="INPUT" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">INPUT</label>
-                    </div>
-                    <div className="menu-components-component">
-                        <img 
-                        src={outputImage} 
-                        alt="OUTPUT" 
-                        id="OUTPUT" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">OUTPUT</label>
-                    </div>
-                    <div className="menu-components-component">
-                        <img
-                        src={andImage}
-                        alt="AND" 
-                        id="AND" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">AND</label>
-                    </div>
-                    <div className="menu-components-component">
-                        <img
-                        src={orImage} 
-                        alt="OR" 
-                        id="OR" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">OR</label>
-                    </div>
-                    <div className="menu-components-component">
-                        <img 
-                        src={notImage} 
-                        alt="NOT" 
-                        id="NOT" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">NOT</label>
-                    </div>
-                    <div className="menu-components-component">
-                        <img 
-                        src={nandImage} 
-                        alt="NAND" 
-                        id="NAND" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">NAND</label>
-                    </div>
-                    <div className="menu-components-component">
-                        <img 
-                        src={norImage} 
-                        alt="NOR" 
-                        id="NOR" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">NOR</label>
-                    </div>
-                    <div className="menu-components-component">
-                        <img 
-                        src={xorImage} 
-                        alt="XOR" 
-                        id="XOR" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">XOR</label>
-                    </div>
-                    <div className="menu-components-component">
-                        <img 
-                        src={xnorImage} 
-                        alt="XNOR" 
-                        id="XNOR" 
-                        className="menu-components-icon" 
-                        onClick={(e) => componentOnClick(e, state)}
-                        />
-                        <label className="menu-components-label">XNOR</label>
-                    </div>
+                    <ComponentButton image={inputImage} componentOnClick={componentOnClick} state={state} name="INPUT" />
+                    <ComponentButton image={outputImage} componentOnClick={componentOnClick} state={state} name="OUTPUT" />
+                    <ComponentButton image={andImage} componentOnClick={componentOnClick} state={state} name="AND" />
+                    <ComponentButton image={orImage} componentOnClick={componentOnClick} state={state} name="OR" />
+                    <ComponentButton image={notImage} componentOnClick={componentOnClick} state={state} name="NOT" />
+                    <ComponentButton image={nandImage} componentOnClick={componentOnClick} state={state} name="NAND" />
+                    <ComponentButton image={norImage} componentOnClick={componentOnClick} state={state} name="NOR" />
+                    <ComponentButton image={xorImage} componentOnClick={componentOnClick} state={state} name="XOR" />
+                    <ComponentButton image={xnorImage} componentOnClick={componentOnClick} state={state} name="XNOR" />
                 </div>
+                    <button className="menu-button" onClick={() => resetInteractions(state)}>Reset input/output</button>
             </div>
         </>
     )

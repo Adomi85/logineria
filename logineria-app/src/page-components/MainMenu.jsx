@@ -1,18 +1,22 @@
+import { useState } from "react";
 import "../styles/menu.css";
 
-import { hideQuickStartGuide } from "../animations/animations.js";
+import { hideQuickStartGuide, captureImage, exportCanvas, clearCanvasQuery, importCanvas } from "../mainmenu-components/menuFunctions.js";
 import ComponentMenu from "../mainmenu-components/ComponentMenu.jsx";
-import { exportCanvas, clearCanvasQuery, importCanvas } from "../logic/canvasFunctions.js";
+
+
 
 const MainMenu = ({state}) => {
+    const [guideVisible, setGuideVisible] = useState(false);
         
     return (
         <>
-            <section  className="menu-container">
+            <div className="menu-wrapper">
+                <div  className="menu-container">
                     <p className="menu-title">Logineria</p>
                     <div className="menu-buttons">
-                        <button className="menu-button" onClick={hideQuickStartGuide}>Quick Start Guide</button>
-                        <button className="menu-button" onClick={() => {console.log(state.wires); console.log(state.nodes); console.log(state.wirePorts);}}>Debug</button>
+                        <button className="menu-button" onClick={() => { hideQuickStartGuide({guideVisible, setGuideVisible}); }}>Quick Start Guide</button>
+                        <button className="menu-button" onClick={() => { console.log("Wires:", state.wires, "Nodes:", state.nodes); }}>Debug</button>
                     </div>
                     <hr className="menu-divider"/>
                     <div className="menu-buttons">
@@ -22,7 +26,13 @@ const MainMenu = ({state}) => {
                     </div>
                     <hr className="menu-divider"/>
                     <ComponentMenu state={state}/>
-            </section>
+                    <hr className="menu-divider"/>
+                    <div className="menu-buttons">
+                        <button className="menu-button" onClick={captureImage}>Capture as image</button>
+                    </div>
+                    <hr className="menu-divider"/>
+                </div>
+            </div>
         </>
     )
 }
