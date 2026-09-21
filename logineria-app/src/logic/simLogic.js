@@ -111,7 +111,11 @@ export async function runSim(state){
     if(nodes.length > 0){
         const nodesQueue = nodes.filter((node) => node.type !== "INPUT" && node.type !== "OUTPUT");
 
-        while(nodesQueue.length > 0){
+        const maxIterations = 1000; // Set a maximum number of iterations to prevent infinite loops
+        let iterations = 0;
+        while(nodesQueue.length > 0 && iterations < maxIterations){
+            iterations++;
+            
             const node = nodesQueue.shift();
             const connected = calculateConnections(wires, nodes, node);
 
@@ -214,7 +218,11 @@ function calculateConnections(wires, nodes, node){
     const visitedWires = new Set();
     const connections = [];
 
-    while(queue.length > 0){
+    const maxIterations = 1000; // Set a maximum number of iterations to prevent infinite loops
+    let iterations = 0;
+    while(queue.length > 0 && iterations < maxIterations){
+        iterations++;
+
         const wire = queue.shift();
 
         if(visitedWires.has(wire.id)){
