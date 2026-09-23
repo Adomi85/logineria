@@ -165,19 +165,42 @@ export function deleteSelected(state){
 
             // Remove the connected wires from the wires array and any wires connected to those wires that are not connected to any gate ports.
             if(filterWires.length > 0){
-                filterWires.forEach((wire) => { 
-                    const connectedWires = wires.filter((w) => (w.startId === wire.id && w.endPortType === "wire_port") || (w.endId === wire.id && w.startPortType === "wire_port"));
+                const wiresQueue = filterWires.concat();
+                const visited = new Set();
+                
+                // Use a queue to traverse all connected wires and remove them from the wires array.
+                while(wiresQueue.length > 0){
 
-                    if(connectedWires.length > 0){
-                        connectedWires.forEach((connectedWire) => {
-                            if(connectedWire.startPortType !== "gate_port" || connectedWire.endPortType !== "gate_port"){
-                                wires.splice(wires.indexOf(connectedWire), 1);
-                            }
-                        });
+                    const currentWire = wiresQueue.shift();
+
+                    if(visited.has(currentWire.id)){
+                        continue;
                     }
+                    visited.add(currentWire.id);
 
-                    wires.splice(wires.indexOf(wire), 1);
-                });
+                    const connectedWires = wires.filter((w) => (w.startId === currentWire.id || w.endId === currentWire.id));
+                    const connectedToWires = wires.filter((w) => (w.startId === currentWire.id && w.endPort === "wire_port") || (w.id === currentWire.endId && w.startPort === "wire_port"));
+                    
+                    connectedWires.forEach((connectedWire) => {
+                        // Ignores wires that are connected to gate ports on both ends, as they are not directly connected to the node being deleted.
+                        if(connectedWire.startPort !== "gate_port" && connectedWire.endPort !== "gate_port"){
+                            wiresQueue.push(connectedWire);
+                        }
+                    });
+
+                    connectedToWires.forEach((connectedToWire) => {
+                        // Ignores wires that are connected to gate ports on both ends, as they are not directly connected to the node being deleted.
+                        if(connectedToWire.startPort !== "gate_port" && connectedToWire.endPort !== "gate_port"){
+                            wiresQueue.push(connectedToWire);
+                        }
+                    });
+    
+                    const wire = wires.find((w) => w.id === currentWire.id);
+
+                    if(wire){
+                        wires.splice(wires.indexOf(wire), 1);
+                    }   
+                }
             }
 
             // Remove the node from the nodes array
@@ -196,7 +219,7 @@ export function deleteSelected(state){
             }
 
             // Find all wires connected to the wire
-            const connectedWires = wires.filter((w) => (w.startId === wire.id && w.endPortType === "wire_port") || (w.endId === wire.id && w.startPortType === "wire_port"));
+            const connectedWires = wires.filter((w) => w.startId === wire.id || w.endId === wire.id);
 
             // Remove any wires that are connected to the selected wire and are not connected to any gate ports, then remove the selected wire itself.
             if(connectedWires.length > 0){
