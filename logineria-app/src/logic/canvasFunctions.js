@@ -1,5 +1,10 @@
 import { createNode, updateNode } from "../logic/nodeRepository.js";
 
+/** 
+* Function for handling selection of nodes and wires on the canvas.
+* @param {Object} e - The event object from the canvas click event.
+* @param {Object} state - The current state of the canvas, including selected objects and mode.
+*/
 export function selectObj (e, state){
 
     const obj = e.target.getParent().attrs;
@@ -36,12 +41,18 @@ export function selectObj (e, state){
     }
 }
 
+/**
+ * Changes the image of a node on the canvas based on its selection state.
+ * If the node is selected, it will display the selected image; otherwise, it will display the original image.
+ * @param {Object} e - The event object from the canvas click event.
+ * @param {Object} set - An object containing the original and selected images.
+ * @param {boolean} selected - A boolean indicating whether the object is currently selected.
+ */
 export const changeImage = (e, set, selected) => {
     e.target.image(set.selectedImage);
     
     if(selected){
-        e.target.image(set.image);
-        
+        e.target.image(set.image);       
     }
 }
 
@@ -69,12 +80,17 @@ export const changeWireMode = (state, ref) => {
     }
 }
 
+/**
+ * Adds a new node to the canvas.
+ * @param {Object} e - The event object from the canvas click event.
+ * @param {Object} state - The current state of the canvas, including selected objects and mode.
+ */
 export function addNode(e, state){
 
     // Adds a new logic gate node to the canvas at the mouse pointer position, then returns to idle mode.
     if(state.mode !== "idle" && state.mode !== "WIRE"){
         const position = e.target.getPointerPosition();
-        const newPosition = { x: position.x - 30, y: position.y - 20 };
+        const newPosition = { x: position.x - 30, y: position.y - 20 }; // Adjusts the position to center the node on the mouse pointer.
         const newNode = createNode(state.mode, newPosition);
 
         state.setNodes([...state.nodes, newNode]);
@@ -83,6 +99,12 @@ export function addNode(e, state){
 
 }
 
+
+/**
+ * Updates the position of a node on the canvas.
+ * @param {Object} e - The event object from the canvas click event.
+ * @param {Object} state - The current state of the canvas, including selected objects and mode.
+ */
 export function updateNodePosition(e, state){
     
     const data = e.target.attrs;
@@ -98,6 +120,11 @@ export function updateNodePosition(e, state){
 
 }
 
+/**
+ * Updates the position of a wire on the canvas.
+ * @param {Object} e - The event object from the canvas click event.
+ * @param {Object} state - The current state of the canvas, including selected objects and mode.
+ */
 export function updateWirePosition(e, state){
 
     let updatedWires = [];
@@ -111,7 +138,8 @@ export function updateWirePosition(e, state){
         const connectedEndNode = state.nodes.find((w) => w.id === wire.endId);
 
         if((connectedStartWire && connectedEndNode) && (connectedEndNode.id !== nodeId)){
-            const wirePortPositionX = (connectedStartWire.wirePortPosition.x - wire.end.x) / 2 + wire.end.x;
+            // Calculate the new wire port position based on the connected start wire and the end node's position.
+            const wirePortPositionX = (connectedStartWire.wirePortPosition.x - wire.end.x) / 2 + wire.end.x; 
             const wirePortPositionY = (connectedStartWire.wirePortPosition.y - wire.end.y) / 2 + wire.end.y;
             const wirePortPosition = { x: wirePortPositionX, y: wirePortPositionY };
 
@@ -222,12 +250,17 @@ export function updateWirePosition(e, state){
     state.setWires([...state.wires.filter((wire) => !updatedWires.find((updated) => updated.id === wire.id)), ...updatedWires]);
 }
 
+/**
+ * Adds a new wire to the canvas.
+ * @param {Object} e - The event object from the canvas click event.
+ * @param {Object} state - The current state of the canvas, including selected objects and mode.
+ */
 export function addWire(e, state){
     const type = e.target.getAttrs().type;
         
     if(type === "gate_port" || type === "wire_port"){
         
-        if(state.wireStart === null){
+        if(state.wireStart === null){ // If no wire is currently being drawn, start a new wire from the clicked port.
 
             const startWire = {
                 id: crypto.randomUUID(),
@@ -240,8 +273,8 @@ export function addWire(e, state){
 
             state.setWireStart(startWire);
         }
-        else {
-
+        else if(state.wireStart.startId !== e.target.parent.getAttrs().id){ // If a wire is already being drawn, and the clicked port belongs to a different node, complete the wire.
+            // Calculate the position of the wire port, which is the midpoint between the start and end ports.
             const wirePortPositionX = (e.target.getAbsolutePosition().x - state.wireStart.start.x) / 2 + state.wireStart.start.x;
             const wirePortPositionY = (e.target.getAbsolutePosition().y - state.wireStart.start.y) / 2 + state.wireStart.start.y;
             const wirePortPosition = { x: wirePortPositionX, y: wirePortPositionY };
@@ -269,6 +302,11 @@ export function addWire(e, state){
     }
 }
 
+
+/**
+ * Clears the entire canvas.
+ * @param {Object} state - The current state of the canvas, including selected objects and mode.
+ */
 export function clearCanvas(state){
     // Reset both the canvas contents and any in-progress interaction state.
     state.setNodes([]);
@@ -278,6 +316,12 @@ export function clearCanvas(state){
     state.setMode("idle");
 }
 
+/**
+ * Handles the dragging of the window.
+ * @param {Object} e - The event object from the drag event.
+ * @param {boolean} isDragging - A flag indicating whether the window is currently being dragged.
+ * @param {Object} position - The current position of the window.
+ */
 export const windowDrag = (e, isDragging, position) => {
     
     if(isDragging){
@@ -308,6 +352,5 @@ export const windowDrag = (e, isDragging, position) => {
 
         window.scroll(windowScrollX * 25, windowScrollY * 15);
     }
-
 }
 

@@ -24,7 +24,7 @@ const App = () => {
           appContainer.style.cursor = "default";
         }
 
-        if(mode === "WIRE"){
+        if(mode !== "idle"){
           appContainer.style.cursor = "crosshair";
         }
       }

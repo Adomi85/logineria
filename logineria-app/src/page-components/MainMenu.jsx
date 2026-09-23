@@ -16,7 +16,6 @@ const MainMenu = ({state}) => {
                     <p className="menu-title">Logineria</p>
                     <div className="menu-buttons">
                         <button className="menu-button" onClick={() => { hideQuickStartGuide({guideVisible, setGuideVisible}); }}>Quick Start Guide</button>
-                        <button className="menu-button" onClick={() => { console.log("Wires:", state.wires, "Nodes:", state.nodes); }}>Debug</button>
                     </div>
                     <hr className="menu-divider"/>
                     <div className="menu-buttons">
@@ -28,7 +27,7 @@ const MainMenu = ({state}) => {
                     <ComponentMenu state={state}/>
                     <hr className="menu-divider"/>
                     <div className="menu-buttons">
-                        <button className="menu-button" onClick={captureImage}>Capture as image</button>
+                        <button className="menu-button" onClick={() => captureImage()}>Capture as image</button>
                     </div>
                     <hr className="menu-divider"/>
                 </div>

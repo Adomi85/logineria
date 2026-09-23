@@ -8,9 +8,9 @@ const WireComponent = ({ wire, state }) => {
     const calculatePositionPoints = (wire) => {
         if(wire.startId !== wire.endId){
             if(wire.startPortFace === "right" && wire.endPortFace === "left"){
-                return [wire.start.x, wire.start.y, wire.start.x + 50, wire.start.y, wire.end.x - 50, wire.end.y, wire.end.x, wire.end.y];
+                return [wire.start.x, wire.start.y, wire.start.x + 25, wire.start.y, wire.end.x - 25, wire.end.y, wire.end.x, wire.end.y];
             } else if(wire.startPortFace === "left" && wire.endPortFace === "right"){
-                return [wire.start.x, wire.start.y, wire.start.x - 50, wire.start.y, wire.end.x + 50, wire.end.y, wire.end.x, wire.end.y];
+                return [wire.start.x, wire.start.y, wire.start.x - 25, wire.start.y, wire.end.x + 25, wire.end.y, wire.end.x, wire.end.y];
             } else {
                 return [wire.start.x, wire.start.y, wire.end.x, wire.end.y];
             }

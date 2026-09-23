@@ -1,5 +1,13 @@
 # Changelog
 
+## 23.9.2026
+
+- Removed unnecessary code from delete selected function.
+- Removed possibility to connect wires to the same component the wire begins in.
+- Capture image now opens a window where user can adjust the circuit position. The Captured image will be made from circuitry visible in the popup window.
+- Importing now propts user if the canvas is not clear. Proceeding will clear the canvas.
+
+
 ## 19.9.2026
 
 - Marjor changes to simulation logic, add wire, wire position, delete functions..

@@ -1,7 +1,29 @@
 import { clearCanvas } from "../logic/canvasFunctions.js";
+import Konva from "konva";
 import html2canvas from "html2canvas";
 
-export function importCanvas(state){
+
+/**
+ * Imports a canvas from a JSON file.
+ * @param {Object} state - The current state of the canvas.
+ */
+export async function importCanvas(state){
+
+    const clearQueryPromise = new Promise((resolve) => {
+        // Clear the current canvas before importing a new one.
+        if(state.nodes.length === 0){
+            resolve(true);
+        } else {
+            const result = clearCanvasQuery(state);
+            resolve(result);
+        }  
+    });
+
+    const result = await Promise.all([clearQueryPromise]); // Wait for the clear canvas query to complete before proceeding with the import.
+
+    if(result[0] === false){
+        return;
+    }
 
     // Import a previously saved circuit from a json file.
     const reader = new FileReader();
@@ -21,17 +43,32 @@ export function importCanvas(state){
                 const data = reader.result;
                 const jsonData = JSON.parse(data);
 
+                if(!jsonData.nodes){ // Check if the imported JSON file has the required properties
+                    console.log("Invalid JSON file format. File doesn't contain valid data");
+                    return;
+                }
+
                 // Imported data replaces the current circuit in full.
                 state.setNodes(jsonData.nodes);
                 state.setWires(jsonData.wires);
             });
         }
     });
-
 }
 
+/**
+ * Exports the current canvas to a JSON file.
+ * @param {Object} state - The current state of the canvas.
+ */
 export function exportCanvas(state){
     // Save nodes and wires together into json file and download it to local machine, so the circuit can be restored as a later import.
+
+    if(state.nodes.length === 0){ // Check if there is any data to export
+        console.log("No nodes or wires to export.");
+        return;
+    }
+
+    // Prepare default filename with current date for the exported JSON file.
     const wires = { wires: state.wires };
     const nodes = { nodes: state.nodes };
     const data = { ...wires, ...nodes };
@@ -42,7 +79,7 @@ export function exportCanvas(state){
     const year = date.getFullYear();
     const filename = `digital_circuit_${day}-${month}-${year}.json`;
 
-
+    // Create a Blob from the JSON data and create a temporary link to download it.
     const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
@@ -57,90 +94,136 @@ export function exportCanvas(state){
     document.body.removeChild(link);
 }
 
-export function clearCanvasQuery(state){
+/**
+ * Prompts the user to confirm clearing the canvas.
+ * @param {Object} state - The current state of the canvas.
+ * @returns {Promise<boolean>} A promise that resolves to true if the user confirms, false otherwise.
+ */
+export async function clearCanvasQuery(state){
+    
+    const clearCanvasPromise = new Promise((resolve) => {
+        
+        if(state.nodes.length !== 0){
+            // Ask for confirmation only when clearing would remove existing nodes.
+            const dialog = document.getElementById("custom-confirm-dialog");
+            const confirmBtnYes = document.getElementById("confirm-btn-yes");
+            const confirmBtnNo = document.getElementById("confirm-btn-no");
             
-    if(state.nodes.length !== 0){
-        // Ask for confirmation only when clearing would remove existing nodes.
-        const dialog = document.getElementById("custom-confirm-dialog");
-        const confirmBtnYes = document.getElementById("confirm-btn-yes");
-        const confirmBtnNo = document.getElementById("confirm-btn-no");
+            dialog.showModal();
+            
+            confirmBtnYes.addEventListener("click", (e) => {
+                e.preventDefault();
+                dialog.close();
+                resolve(true);
+            });
+            
+            confirmBtnNo.addEventListener("click", (e) => {
+                e.preventDefault();
+                dialog.close();
+                resolve(false);
+            });
+        } 
+    });
     
-        dialog.showModal();
-    
-        confirmBtnYes.addEventListener("click", (e) => {
-            e.preventDefault();
-            dialog.close();
-            clearCanvas(state);
-        });
-    
-        confirmBtnNo.addEventListener("click", (e) => {
-            e.preventDefault();
-            dialog.close();
-        });
+    const result = await Promise.all([clearCanvasPromise]); // Wait for the user to respond to the confirmation dialog before proceeding.
+
+    if(result[0] === false){
+        return false; // User chose not to clear the canvas, so return false to indicate that the operation was canceled.
     } else {
-        clearCanvas(state);
+        clearCanvas(state); // Clear the canvas if the user confirmed the action and return true to indicate that the operation was successful.
+        return true;
     }
 }
 
-export function deleteSelected(state){
-    const nodes = state.nodes;
-    const wires = state.wires;
-    
-    let hasNodesSelected = false;
-    let hasWiresSelected = false;
 
-    if(state.selection.length !== 0){
-        for(const selection of state.selection){
-            if(selection.type === "WIRE"){
-                hasWiresSelected = true;
-                
-            } else {
-                hasNodesSelected = true;
-            } 
-        }
+/**
+ * Deletes the selected items from the canvas.
+ * @param {Object} state - The current state of the canvas.
+ */
+export function deleteSelected(state){
+
+    if(state.selection.length === 0){
+        console.log("No items selected for deletion.");
+        return;
     }
 
-    if(hasNodesSelected){
-        const filteredNodes = nodes.filter((node) => !state.selection.find((selection) => selection.id === node.id));
-        let finalWires = wires;
+    const nodes = state.nodes.concat();
+    const wires = state.wires.concat();
 
-        state.selection.forEach((selection) => {
-            if(selection.type !== "WIRE"){
-                const filteredWires = [];
-                const filterNodeConnectedWires = wires.filter((wire) => wire.startId !== selection.id && wire.endId !== selection.id);
-                
-                filteredWires.push(...filterNodeConnectedWires);
-                const filterConnectedWires = filteredWires.filter((wire) => !wires.find((w) => wire.startId === w.id || wire.endId === w.id));
-                const listWires = filterConnectedWires.filter((wire) => !state.selection.find((s) => s.id === wire.id));
-                const tempWiresArray = finalWires.concat();
-                
-                tempWiresArray.forEach((wire) => {
-                    if(!listWires.includes(wire)){
-                        finalWires = finalWires.filter((w) => w.id !== wire.id);
+    state.selection.forEach((selection) => {
+        if(selection.type !== "WIRE"){
+            const nodeId = selection.id;
+            const node = state.nodes.find((n) => n.id === nodeId);
+
+            if(!node){
+                console.log("Node not found for deletion: ", nodeId);
+                return;
+            }
+
+            // Find all wires connected to the node
+            const filterWires = wires.filter((wire) => wire.startId === node.id || wire.endId === node.id);
+
+            // Remove the connected wires from the wires array and any wires connected to those wires that are not connected to any gate ports.
+            if(filterWires.length > 0){
+                filterWires.forEach((wire) => { 
+                    const connectedWires = wires.filter((w) => (w.startId === wire.id && w.endPortType === "wire_port") || (w.endId === wire.id && w.startPortType === "wire_port"));
+
+                    if(connectedWires.length > 0){
+                        connectedWires.forEach((connectedWire) => {
+                            if(connectedWire.startPortType !== "gate_port" || connectedWire.endPortType !== "gate_port"){
+                                wires.splice(wires.indexOf(connectedWire), 1);
+                            }
+                        });
+                    }
+
+                    wires.splice(wires.indexOf(wire), 1);
+                });
+            }
+
+            // Remove the node from the nodes array
+            if(node){                
+                nodes.splice(nodes.indexOf(node), 1);
+            }
+        }
+
+        if(selection.type === "WIRE"){
+            const wireId = selection.id;
+            const wire = state.wires.find((w) => w.id === wireId);
+
+            if(!wire){
+                console.log("Wire not found for deletion: ", wireId);
+                return;
+            }
+
+            // Find all wires connected to the wire
+            const connectedWires = wires.filter((w) => (w.startId === wire.id && w.endPortType === "wire_port") || (w.endId === wire.id && w.startPortType === "wire_port"));
+
+            // Remove any wires that are connected to the selected wire and are not connected to any gate ports, then remove the selected wire itself.
+            if(connectedWires.length > 0){
+                connectedWires.forEach((connectedWire) => {
+                    if(connectedWire.startPortType !== "gate_port" || connectedWire.endPortType !== "gate_port"){
+                        wires.splice(wires.indexOf(connectedWire), 1);
                     }
                 });
             }
-        });
-        
-        state.setNodes(filteredNodes); // Update nodes and remove any selected nodes.
-        state.setWires(finalWires); // Remove wires that are connected to the deleted nodes, as well as any selected wires.
-        
-        state.setSelection([]);
-        
-    } 
-    else if(hasNodesSelected === false && hasWiresSelected === true){
-        const filteredWires = wires.filter((wire) => !state.selection.find((selection) => selection.id === wire.id));
-        const connectedWires = wires.filter((wire) => !filteredWires.find((w) => wire.startId === w.id || wire.endId === w.id));
-        const finalWires = connectedWires.filter((wire) => !state.selection.find((selection) => selection.id === wire.id));
 
-        state.setWires(finalWires); // Update wires only, since no nodes are selected to be deleted.
-        state.setSelection([]);
+            wires.splice(wires.indexOf(wire), 1);
+        }
+    });
 
-    } else {
-        return;
-    }
+    const returnedNodes = nodes.concat();
+    const returnedWires = wires.concat();
+    
+    state.setNodes(returnedNodes);
+    state.setWires(returnedWires);
+
+    state.setSelection([]);
 }
 
+/**
+ * Resets the input/output values of all nodes and wires in the given state.
+ * @param {Object} state 
+ */
 export function resetInteractions(state){
 
     if(state.nodes !== null){
@@ -173,14 +256,16 @@ export function resetInteractions(state){
 
             updatedNodes.push(updatedNode);
         }
-
-        for(const wire of state.wires){
-            const newWire = {
-                ...wire,
-                value: 0
+        
+        if(state.wires.length > 0){
+            for(const wire of state.wires){
+                const newWire = {
+                    ...wire,
+                    value: 0
+                }
+                
+                updatedWires.push(newWire);
             }
-            
-            updatedWires.push(newWire);
         }
 
         state.setNodes(updatedNodes);
@@ -188,22 +273,81 @@ export function resetInteractions(state){
     }
 }
 
+
+/**
+ * Captures the current state of the canvas as an image and opens it in a new window for preview and download.
+ * The user can fit the image to the window and click the download button to save it as a PNG file.
+ */
 export const captureImage = () => {
-    const captureStage = document.getElementById("canvas-stage");
 
-    html2canvas(captureStage).then((canvas) => {
-        const image = canvas.toDataURL("image/png");
+    const stage = Konva.stages.find((s) => s.attrs.id === "canvas-stage");
+    const node = stage.clone();
+    node.scale({ x: 0.8, y: 0.8 });
+    
+    const win = window.open("", "_blank", "width=800,height=600", self);
+    const previewContainer = document.createElement("div");
+    previewContainer.style.position = "fixed";
+    previewContainer.style.top = "0";
+    previewContainer.style.left = "0";
+    previewContainer.style.width = "800px";
+    previewContainer.style.height = "600px";
+    previewContainer.style.zIndex = "9998";
+    
+    const canvas = document.createElement("div");
+    canvas.style.position = "relative";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.border = "none";
+    canvas.style.overflow = "scroll";
+    canvas.appendChild(node.container());
+    previewContainer.appendChild(canvas);
 
-        const link = document.createElement("a");
-        link.href = image;
-        link.download = "circuit.png";
+    win.document.body.appendChild(previewContainer);
+    
+    const button = document.createElement("button");
+    button.textContent = "Download Image";
+    button.style.position = "fixed";
+    button.style.top = "10px";
+    button.style.left = "300px";
+    button.style.width = "170px";
+    button.style.zIndex = "9999";
 
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const textarea = document.createElement("p");
+    textarea.textContent = "Fit the image to window and click download button to save.";
+    textarea.style.fontFamily = "Arial, sans-serif";
+    textarea.style.fontSize = "14px";
+    textarea.style.position = "fixed";
+    textarea.style.bottom = "10px";
+    textarea.style.left = "220px";
+    textarea.style.textAlign = "center";
+    textarea.style.zIndex = "9999";
+    win.document.body.appendChild(textarea);
+
+    button.addEventListener("click", () => {
+        html2canvas(previewContainer).then((canvas) => {
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = image;
+            link.download = "circuit.png";
+            win.document.body.appendChild(link);
+            
+            link.click();
+            
+            win.document.body.removeChild(link);
+            win.URL.revokeObjectURL(link.href);
+        });
     });
+    
+    win.document.body.appendChild(previewContainer);
+    win.document.body.appendChild(button);
 }
 
+/**
+ * Toggles the visibility of the quick start guide.
+ * @param {Object} guide - The quick start guide object.
+ */
 export const hideQuickStartGuide = (guide) => {
     
     const quickStartGuide = document.getElementById("quick-start-guide");

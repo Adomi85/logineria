@@ -10,7 +10,7 @@ const CircuitCanvas = ({state}) => {
     const [isDragging, setIsDragging] = useState(false);
     const [position, setPosition] = useState({x: 0, y: 0});
     const [scale, setScale] = useState({x: 1, y: 1});
-    const stageWidth = window.innerWidth * 1.0;
+    const stageWidth = window.innerWidth * 0.9;
     const stageHeight = window.innerHeight * 2.0;
     const gridSize = 30;
     const lines = [];
@@ -59,13 +59,13 @@ const CircuitCanvas = ({state}) => {
                         }}
                     onMouseDown={(e) => { 
                         if(e.target.attrs.id === "canvas-stage"){
-                            setIsDragging(true); 
-                            document.getElementById("canvas-stage").style.cursor = "grabbing";
+                            setIsDragging(true);
                         }
                     }}
-                    onMouseUp={() => { 
-                        setIsDragging(false); 
-                        document.getElementById("canvas-stage").style.cursor = "default";
+                    onMouseUp={() => {
+                        if(isDragging === true){
+                            setIsDragging(false);
+                        }
                     }}
                     onMouseMove={(e) => { windowDrag(e, isDragging, {position, setPosition}); }}
                     >

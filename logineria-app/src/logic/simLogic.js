@@ -1,6 +1,11 @@
 import { updateInputNodePower, updateOutputNodePower } from "./nodeRepository";
 
-// Updates the value to INPUT logic gate node
+/**
+ * Updates the value of an INPUT logic gate node.
+ * @param {*} id - The ID of the node to update.
+ * @param {Object} state - The current state of the application.
+ * @param {integer} value - The new value for the node's input. Note: use only 0 or 1 as values.
+ */
 export function updateInput(id, state, value){
 
     // Find the node with the given id
@@ -20,11 +25,21 @@ export function updateInput(id, state, value){
     }
 }
 
+/**
+ * Runs the simulation for the given state.
+ * @param {Object} state - The current state of the application.
+ */
 export async function runSim(state){
 
-    let wires = state.wires;
-    let nodes = state.nodes;
+    if(state.nodes.length === 0 || state.wires.length === 0){
+        console.log("No nodes or wires to simulate.");
+        return;
+    }
 
+    const wires = state.wires.concat();
+    const nodes = state.nodes.concat();
+
+    // Gets all INPUT nodes and updates the values of connected wires and nodes based on their connections.
     const inputs = nodes.filter((node) => node.type === "INPUT");
 
     if(inputs.length > 0){
@@ -107,7 +122,8 @@ export async function runSim(state){
             }
         });
     }
-
+    
+    // Continues to propagate the values throught the circuit untill all logic gates have been updated.
     if(nodes.length > 0){
         const nodesQueue = nodes.filter((node) => node.type !== "INPUT" && node.type !== "OUTPUT");
 
@@ -192,6 +208,7 @@ export async function runSim(state){
         
     }
 
+    // Updates the OUTPUT nodes based on the values of the connected wires.
     const outputs = nodes.filter((node) => node.type === "OUTPUT");
 
     outputs.forEach((output) => {
@@ -200,7 +217,8 @@ export async function runSim(state){
         const outputValue = connectedWires.some((wire) => wire.value === 1) ? 1 : 0;
         const updatedOutputNode = updateOutputNodePower(output, outputValue);
 
-        nodes = [...nodes.filter((n) => n.id !== output.id), updatedOutputNode];
+        const index = nodes.findIndex((n) => n.id === output.id);
+        nodes.splice(index, 1, updatedOutputNode);
     });
 
 
@@ -208,6 +226,13 @@ export async function runSim(state){
     state.setWires(wires);
 }
 
+/**
+ * Calculates the connections of a given node, including connected wires and nodes.
+ * @param {Array} wires - The array of all wires in the circuit.
+ * @param {Array} nodes - The array of all nodes in the circuit.
+ * @param {Object} node - The node for which to calculate connections.
+ * @returns {Object} An object containing the connected wires and nodes.
+ */
 function calculateConnections(wires, nodes, node){
 
     const port = node.type === "INPUT" ? "in1" : "out";

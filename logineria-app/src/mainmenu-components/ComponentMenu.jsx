@@ -54,8 +54,6 @@ const ComponentMenu = ({state}) => {
 
     function componentOnClick(e, state){
         const componentType = e.currentTarget.id;
-        const appContainer = document.getElementById("app-container");
-        appContainer.style.cursor = "crosshair";
 
         switchMode(componentType, state.mode, state.setMode);
     }
