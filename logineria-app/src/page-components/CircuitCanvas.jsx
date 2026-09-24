@@ -49,7 +49,7 @@ const CircuitCanvas = ({state}) => {
                         setScale({x: 1, y: 1});
                     }}
                     onClick={(e) => {
-                            if(state.mode !== 'WIRE'){
+                            if(state.mode !== 'WIRE' && e.target.attrs.id === "canvas-stage"){
                                 addNode(e, state);
                             }
 

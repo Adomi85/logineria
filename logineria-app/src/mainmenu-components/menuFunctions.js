@@ -324,6 +324,7 @@ export const captureImage = () => {
     canvas.style.height = "100%";
     canvas.style.border = "none";
     canvas.style.overflow = "scroll";
+    canvas.style.backgroundColor = "#ffffff";
     canvas.appendChild(node.container());
     previewContainer.appendChild(canvas);
 

@@ -9,11 +9,12 @@ const TwoInputGate = ({node, state, componentImg, selectedImg }) => {
     const [selectedImage] = useImage(selectedImg);
     const [position] = useState(node.position);
     const groupRef = useRef(null);
+
     
     useEffect(() => {
-        changeWireMode(state, groupRef);
 
-    }, [state, node, image, selectedImage]);
+        changeWireMode(state, groupRef);
+    }, [state]);
 
     return (
         <>
@@ -26,7 +27,7 @@ const TwoInputGate = ({node, state, componentImg, selectedImg }) => {
 
                             changeImage(e, {image, selectedImage}, isSelected);
                         }
-                    }}/>
+                }}/>
                 <Circle radius={3} x={0} y={8.5} fill="transparent" id={"in1"} type={"gate_port"} name={"port"} portface={"left"} />
                 <Circle radius={3} x={0} y={30.5} fill="transparent" id={"in2"} type={"gate_port"} name={"port"} portface={"left"} />
                 <Circle radius={3} x={58.5} y={20} fill="transparent" id={"out"} type={"gate_port"} name={"port"} portface={"right"} />

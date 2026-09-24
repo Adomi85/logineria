@@ -2,15 +2,13 @@ import { deleteSelected, resetInteractions } from "./menuFunctions.js";
 import { useState, useEffect } from "react";
 import ComponentButton from "./ComponentButton.jsx";
 
-import andImage from "../assets/and.png";
-import orImage from "../assets/or.png";
-import notImage from "../assets/not.png";
-import nandImage from "../assets/nand.png";
-import norImage from "../assets/nor.png";
-import xorImage from "../assets/xor.png";
-import xnorImage from "../assets/xnor.png";
-import inputImage from "../assets/input.png";
-import outputImage from "../assets/output.png";
+import {
+    andImage, orImage, 
+    notImage, nandImage,
+    norImage, xorImage, 
+    xnorImage, inputImage, 
+    outputImage 
+} from "../assets.js";
 
 const ComponentMenu = ({state}) => {
     const [isDisabled, setIsDisabled] = useState(true);

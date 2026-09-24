@@ -66,6 +66,8 @@ body {
 }
 
 .btn-runsim {
+    font-family: "Sansdiesgo", sans-serif;
+    font-size: 14px;
     margin: 2px;
     width: 120px;
     height: 30px;

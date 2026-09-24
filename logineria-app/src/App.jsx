@@ -3,6 +3,7 @@ import MainMenu from "./page-components/MainMenu";
 import "./styles/main.css";
 import "./styles/guide.css";
 
+
 import { useState, useEffect } from "react";
 import CustomConfirmDialog from "./dialog/CustomConfirmDialog.jsx";
 import QuickStartGuide from "./page-components/QuickStartGuide.jsx";

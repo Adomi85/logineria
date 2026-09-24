@@ -3,20 +3,15 @@ import InputComponent from "./InputComponent.jsx";
 import TwoInputGate from "./TwoInputGate.jsx";
 import SingleInputGate from "./SingleInputGate.jsx";
 
-import andImage from "../assets/AND.png";
-import andSelectedImage from "../assets/AND_selected.png";
-import orImage from "../assets/OR.png";
-import orSelectedImage from "../assets/OR_selected.png";
-import notImage from "../assets/NOT.png";
-import notSelectedImage from "../assets/NOT_selected.png";
-import nandImage from "../assets/NAND.png";
-import nandSelectedImage from "../assets/NAND_selected.png";
-import norImage from "../assets/NOR.png";
-import norSelectedImage from "../assets/NOR_selected.png";
-import xorImage from "../assets/XOR.png";
-import xorSelectedImage from "../assets/XOR_selected.png";
-import xnorImage from "../assets/XNOR.png";
-import xnorSelectedImage from "../assets/XNOR_selected.png";
+import {
+    andImage, andSelectedImage,
+    orImage, orSelectedImage,
+    notImage, notSelectedImage,
+    nandImage, nandSelectedImage,
+    norImage, norSelectedImage,
+    xorImage, xorSelectedImage,
+    xnorImage, xnorSelectedImage
+} from "../assets.js";
 
 const LogicComponent = ({ node, state }) => {
 

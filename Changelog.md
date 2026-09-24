@@ -1,5 +1,9 @@
 # Changelog
 
+## 24.9.2026
+
+- Changed assets location to public folder and added assets.js for exporting url paths for components, to fix rendering issues in Firefox browser.
+
 ## 23.9.2026
 
 - Removed unnecessary code from delete selected function.
