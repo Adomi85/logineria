@@ -1,5 +1,11 @@
 import { NODE_TYPES } from "./nodeTypes";
 
+/**
+ * Creates a new node of the specified type at the given position.
+ * @param {string} type - The type of the node to create.
+ * @param {Object} position - The position of the node.
+ * @returns {Object} The newly created node.
+ */
 export function createNode(type, position){
     
     for (const [key, value] of Object.entries(NODE_TYPES)){
@@ -16,6 +22,11 @@ export function createNode(type, position){
     }
 }
 
+/**
+ * Updates the properties of a node.
+ * @param {Object} node - The node to update.
+ * @returns {Object} The updated node.
+ */
 export function updateNode(node){
 
     const newNode = {
@@ -28,6 +39,12 @@ export function updateNode(node){
     return newNode;
 }
 
+/**
+ * Updates the power of an OUTPUT node.
+ * @param {Object} node - The OUTPUT node to update.
+ * @param {number} output - The new output value.
+ * @returns {Object} The updated node.
+ */
 export function updateOutputNodePower(node, output){
 
     const newNode = {
@@ -40,6 +57,12 @@ export function updateOutputNodePower(node, output){
     return newNode;
 }
 
+/**
+ * Updates the power of an INPUT node.
+ * @param {Object} node - The INPUT node to update.
+ * @param {Object} input - The new input values.
+ * @returns {Object} The updated node.
+ */
 export function updateInputNodePower(node, input){
 
     const newNode = {
@@ -52,6 +75,12 @@ export function updateInputNodePower(node, input){
     return newNode;
 }
 
+/**
+ * Evaluates the output of a node based on its type and input values.
+ * @param {string} type - The type of the node.
+ * @param {Object} inputs - The input values.
+ * @returns {number} The output value.
+ */
 function evalOutput(type, inputs){
 
     switch(type){

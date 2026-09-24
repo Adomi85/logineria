@@ -1,5 +1,13 @@
+@font-face {
+    font-family: "Sansdiesgo";
+    src: url("../fonts/Sansdiesgo.ttf") format("ttf");
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
-    background-color: gray;
+    background-color: lightgray;
+    overflow: hidden;
 }
 
 .app-container {
@@ -8,85 +16,65 @@ body {
     left: 0px;
     width: 100%;
     height: 100%;
-    cursor: default;
 }
 
-.pointer {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: black;
-    pointer-events: none;
-    z-index: 9999;
-    visibility: hidden;
+.custom-confirm-dialog {
+    font-family: "Sansdiesgo", sans-serif;
+    font-size: 15px;
+    background: linear-gradient(to top, #c7c7c7 5%, #ffffff 50%, #c7c7c7 );
+    padding: 20px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid darkblue;
+    filter: drop-shadow(0px 0px 2px gray);
 }
 
-.pointer-icon {
-    width: 50px;
-    height: 35px;
-    opacity: 0.5;
+.confirmation-button {
+    font-family: "Sansdiesgo", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 10px;
+    padding: 5px;
+    width: 100px;
+    background-color: whitesmoke;
+    border: 1px solid darkblue;
+    border-radius: 3px;
+    cursor: pointer;
 }
 
-.pointer-and {
-    position: absolute;
-    top: -15px;
-    left: -20px;
-    visibility: hidden;
+.confirmation-button:hover {
+    background-color: white;
 }
 
-.pointer-or {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
+.confirmation-button:active {
+    background-color: lightgrey;
 }
 
-.pointer-not {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
+.btn-runsim-wrapper {
+    z-index: 1000;
+    position: fixed;
+    top: 20px;
+    left: 45vw;
+    width: 124px;
+    height: 34px;
+    background: linear-gradient(40deg, #0051ff, #00b7ff 60%);
+    filter: drop-shadow(0px 0px 5px gray);
+    border-radius: 4px;
 }
 
-.pointer-nand {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
+.btn-runsim {
+    font-family: "Sansdiesgo", sans-serif;
+    font-size: 14px;
+    margin: 2px;
+    width: 120px;
+    height: 30px;
 }
 
-.pointer-nor {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-xor {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-xnor {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-input {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
-}
-
-.pointer-output {
-    position: absolute;
-    top: -15px;
-    left: -20px;    
-    visibility: hidden;
+.btn-runsim:hover {
+    cursor: pointer;
+    background: lightyellow;
+    color: blue;
 }

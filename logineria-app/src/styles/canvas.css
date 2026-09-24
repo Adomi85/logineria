@@ -1,12 +1,11 @@
 .canvas-container {
     position: absolute;
     top: 0px;
-    left: 0px;
+    left: 290px;
     margin-left: 0px;
 }
 
 .canvas-stage {
-    border: 1px solid black;
     background-color: lightgray;
     padding: 2px;
 }
