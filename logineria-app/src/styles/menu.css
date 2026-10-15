@@ -1,10 +1,3 @@
-@font-face {
-    font-family: "Sansdiesgo";
-    src: url("../fonts/Sansdiesgo.ttf") format("ttf");
-    font-weight: normal;
-    font-style: normal;
-}
-
 .menu-wrapper {
     position: fixed;
     top: 10px;
@@ -28,7 +21,7 @@
 .menu-title {
     font-size: 20px;
     font-weight: 600;
-    font-family: "Sansdiesgo", sans-serif;
+    font-family: "calibri", sans-serif;
     justify-content: center;
     text-align: center;
     padding: 5px;
@@ -54,7 +47,7 @@
     margin: 2px;
     cursor: pointer;
     font-size: 12px;
-    font-family: "Sansdiesgo", sans-serif;
+    font-family: "calibri", sans-serif;
 }
 
 .menu-button:hover {
@@ -67,7 +60,7 @@
     margin: 2px;
     cursor: pointer;
     font-size: 12px;
-    font-family: "Sansdiesgo", sans-serif;
+    font-family: "calibri", sans-serif;
     justify-content: center;
     text-align: center;
     width: 60px;
@@ -95,7 +88,7 @@
 .menu-components-title {
     font-size: 14px;
     font-weight: normal;
-    font-family: "Sansdiesgo", sans-serif;
+    font-family: "calibri", sans-serif;
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -121,7 +114,7 @@
     width: 50px;
     font-size: 12px;
     font-weight: 500;
-    font-family: "Sansdiesgo", sans-serif;
+    font-family: "calibri", sans-serif;
     margin-bottom: 5px;
     margin-left: 2px;
     text-align: center;
